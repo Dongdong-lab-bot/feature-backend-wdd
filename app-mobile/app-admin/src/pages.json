@@ -1,0 +1,409 @@
+{
+	"pages": [
+		{
+			"path": "pages/guide/guide",
+			"style": {
+				"navigationBarTitleText": "引导页",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/login/login",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/login/register",
+			"style": {
+				"navigationBarTitleText": "注册",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/login/forget-password",
+			"style": {
+				"navigationBarTitleText": "忘记密码"
+			}
+		},
+		{
+			"path": "pages/login/change-password",
+			"style": {
+				"navigationBarTitleText": "修改密码"
+			}
+		},
+		{
+			"path": "pages/index/ranking/ranking",
+			"style": {
+				"navigationBarTitleText": "食安指数排名"
+			}
+		},
+		{
+			"path": "pages/daily/task-list",
+			"style": {
+				"navigationBarTitleText": "日管控",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/weekly/task-list",
+			"style": {
+				"navigationBarTitleText": "周排查",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/joint/task-list",
+			"style": {
+				"navigationBarTitleText": "联合巡检",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/video/task-list",
+			"style": {
+				"navigationBarTitleText": "视频监控中心",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/canteen-selection/area",
+			"style": {
+				"navigationBarTitleText": "选择片区",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/canteen-selection/school-type",
+			"style": {
+				"navigationBarTitleText": "选择学校类型",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/canteen-selection/school",
+			"style": {
+				"navigationBarTitleText": "选择学校",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/daily/record-completed",
+			"style": {
+				"navigationBarTitleText": "日管控记录详情",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/weekly/record-completed",
+			"style": {
+				"navigationBarTitleText": "周排查记录详情",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/joint/record-completed",
+			"style": {
+				"navigationBarTitleText": "联合巡检记录详情",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/video/record-completed",
+			"style": {
+				"navigationBarTitleText": "视频巡检记录详情",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/daily/record-audit",
+			"style": {
+				"navigationBarTitleText": "日管控记录审核",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/daily/checklist-submit",
+			"style": {
+				"navigationBarTitleText": "日管控检查表提交"
+			}
+		},
+		{
+			"path": "pages/daily/submit-success",
+			"style": {
+				"navigationBarTitleText": "提交成功"
+			}
+		},
+		{
+			"path": "pages/daily/record-rectify",
+			"style": {
+				"navigationBarTitleText": "日管控记录整改",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/daily/audit-success",
+			"style": {
+				"navigationBarTitleText": "审核成功",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/weekly/checklist-submit",
+			"style": {
+				"navigationBarTitleText": "周排查检查表提交"
+			}
+		},
+		{
+			"path": "pages/weekly/submit-success",
+			"style": {
+				"navigationBarTitleText": "提交成功"
+			}
+		},
+		{
+			"path": "pages/weekly/rectify-audit-success",
+			"style": {
+				"navigationBarTitleText": "整改审核成功"
+			}
+		},
+		{
+			"path": "pages/monthly/detail",
+			"style": {
+				"navigationBarTitleText": "月调度",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/monthly/detail-view",
+			"style": {
+				"navigationBarTitleText": "月调度详情",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/weekly/record-rectify",
+			"style": {
+				"navigationBarTitleText": "周排查记录整改",
+				"enablePullDownRefresh": false
+			}
+		},
+		{
+			"path": "pages/joint/record-rectify",
+			"style": {
+				"navigationBarTitleText": "联合巡检记录整改"
+			}
+		},
+		{
+			"path": "pages/joint/checklist-submit",
+			"style": {
+				"navigationBarTitleText": "联合巡检表提交"
+			}
+		},
+		{
+			"path": "pages/joint/submit-success",
+			"style": {
+				"navigationBarTitleText": "提交成功"
+			}
+		},
+		{
+			"path": "pages/joint/rectify-audit-success",
+			"style": {
+				"navigationBarTitleText": "整改审核成功"
+			}
+		},
+		{
+			"path": "pages/video/view",
+			"style": {
+				"navigationBarTitleText": "视频查看",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/video/checklist-submit",
+			"style": {
+				"navigationBarTitleText": "视频巡检表提交"
+			}
+		},
+		{
+			"path": "pages/video/record-rectify",
+			"style": {
+				"navigationBarTitleText": "视频巡检记录整改"
+			}
+		},
+		{
+			"path": "pages/video/submit-success",
+			"style": {
+				"navigationBarTitleText": "提交成功"
+			}
+		},
+		{
+			"path": "pages/video/audit-success",
+			"style": {
+				"navigationBarTitleText": "审核成功"
+			}
+		},
+		{
+			"path": "pages/video/test-play",
+			"style": {
+				"navigationBarTitleText": "视频播放测试"
+			}
+		},
+		{
+			"path": "pages/sop/completed-tasks",
+			"style": {
+				"navigationBarTitleText": "已完成任务"
+			}
+		},
+		{
+			"path": "pages/sop/canteen-sop",
+			"style": {
+				"navigationBarTitleText": "SOP任务中心",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/sop/single-canteen-sop",
+			"style": {
+				"navigationBarTitleText": "食堂SOP",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/data/data-center",
+			"style": {
+				"navigationBarTitleText": "数据中心",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/mine",
+			"style": {
+				"navigationBarTitleText": "我的",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/settings",
+			"style": {
+				"navigationBarTitleText": "设置"
+			}
+		},
+		{
+			"path": "pages/mine/profile",
+			"style": {
+				"navigationBarTitleText": "个人资料",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/notifications",
+			"style": {
+				"navigationBarTitleText": "通知"
+			}
+		},
+		{
+			"path": "pages/mine/change-phone",
+			"style": {
+				"navigationBarTitleText": "更改手机号码",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/mine/change-password",
+			"style": {
+				"navigationBarTitleText": "修改密码"
+			}
+		},
+		{
+			"path": "pages/common/debug",
+			"style": {
+				"navigationBarTitleText": "开发调试"
+			}
+		},
+		{
+			"path": "pages/common/network-error",
+			"style": {
+				"navigationBarTitleText": "网络异常"
+			}
+		},
+		{
+			"path": "pages/common/account-error",
+			"style": {
+				"navigationBarTitleText": "账户异常",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/common/upgrade-reminder",
+			"style": {
+				"navigationBarTitleText": "升级提醒",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/common/loading",
+			"style": {
+				"navigationBarTitleText": "数据加载",
+				"navigationStyle": "custom"
+			}
+		},
+		{
+			"path": "pages/common/empty-data",
+			"style": {
+				"navigationBarTitleText": "空数据"
+			}
+		},
+		{
+			"path": "pages/common/gestures",
+			"style": {
+				"navigationBarTitleText": "常用手势"
+			}
+		},
+		{
+			"path": "pages/common/notice",
+			"style": {
+				"navigationBarTitleText": "公共说明"
+			}
+		},
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "首页",
+				"navigationStyle": "custom"
+			}
+		}
+	],
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "食品安全监管平台",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"tabBar": {
+		"color": "#999999",
+		"selectedColor": "#007aff",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "首页",
+				"iconPath": "static/home/icon-tab-home.svg",
+				"selectedIconPath": "static/home/icon-tab-home.svg"
+			},
+			{
+				"pagePath": "pages/data/data-center",
+				"text": "数据中心",
+				"iconPath": "static/home/icon-tab-data.svg",
+				"selectedIconPath": "static/home/icon-tab-data.svg"
+			},
+			{
+				"pagePath": "pages/mine/mine",
+				"text": "我的",
+				"iconPath": "static/home/icon-tab-mine.svg",
+				"selectedIconPath": "static/home/icon-tab-mine.svg"
+			}
+		]
+	}
+}

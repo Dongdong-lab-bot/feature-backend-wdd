@@ -1,0 +1,98 @@
+[33mb9268aa9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/frontend/lzh1[m[33m, [m[1;31morigin/feature/frontend/lzh1[m[33m)[m HEAD@{0}: checkout: moving from feature/frontend/lzh to feature/frontend/lzh1
+[33mc177c856[m[33m ([m[1;31morigin/feature/frontend/lzh[m[33m, [m[1;32mfeature/frontend/lzh[m[33m)[m HEAD@{1}: commit (merge): Merge branch 'feature/frontend/lzh' of https://github.com/Ruaww06/Safefood-Platform into feature/frontend/lzh
+[33m25c35643[m HEAD@{2}: commit: 拉取develop
+[33m2edea294[m HEAD@{3}: merge origin/develop: Merge made by the 'ort' strategy.
+[33md874f466[m HEAD@{4}: commit (merge): Merge branch 'feature/frontend/gsx1' into feature/frontend/lzh
+[33m807135f6[m HEAD@{5}: checkout: moving from feature/frontend/gsx1 to feature/frontend/lzh
+[33maa950241[m[33m ([m[1;32mfeature/frontend/gsx1[m[33m)[m HEAD@{6}: checkout: moving from feature/frontend/lzh to feature/frontend/gsx1
+[33m807135f6[m HEAD@{7}: commit (merge): Merge branch 'feature/frontend/wyw' into feature/frontend/lzh
+[33m280f1875[m HEAD@{8}: merge origin/develop: Fast-forward
+[33m4256c116[m HEAD@{9}: reset: moving to 4256c116
+[33mb5fa87a0[m HEAD@{10}: commit (merge): Merge remote-tracking branch 'origin/develop' into feature/frontend/lzh
+[33m0b0bac4d[m[33m ([m[1;31morigin/feature/frontend/main[m[33m, [m[1;32mfeature/frontend/main[m[33m)[m HEAD@{11}: reset: moving to 0b0bac4d
+[33m67ceaaac[m HEAD@{12}: commit (merge): Merge remote-tracking branch 'origin/develop' into feature/frontend/lzh
+[33mc60ef373[m HEAD@{13}: merge origin/feature/frontend/wyw: Merge made by the 'ort' strategy.
+[33m0b0bac4d[m[33m ([m[1;31morigin/feature/frontend/main[m[33m, [m[1;32mfeature/frontend/main[m[33m)[m HEAD@{14}: checkout: moving from feature/frontend/main to feature/frontend/lzh
+[33m0b0bac4d[m[33m ([m[1;31morigin/feature/frontend/main[m[33m, [m[1;32mfeature/frontend/main[m[33m)[m HEAD@{15}: reset: moving to 0b0bac4d
+[33m4256c116[m HEAD@{16}: reset: moving to 4256c116
+[33m280f1875[m HEAD@{17}: merge origin/develop: Fast-forward
+[33m4256c116[m HEAD@{18}: commit: app执行端监管端模块一实现
+[33mb43b32bb[m[33m ([m[1;31morigin/feature/frontend/cwy[m[33m)[m HEAD@{19}: pull origin feature/frontend/main: Fast-forward
+[33m8dde6113[m HEAD@{20}: checkout: moving from feature/frontend/lzh to feature/frontend/main
+[33m0b0bac4d[m[33m ([m[1;31morigin/feature/frontend/main[m[33m, [m[1;32mfeature/frontend/main[m[33m)[m HEAD@{21}: commit: 合并执行端和监管端模块一接口接入
+[33ma6921ea9[m HEAD@{22}: merge origin/feature/frontend/wyw: Merge made by the 'ort' strategy.
+[33mde426e84[m HEAD@{23}: merge origin/feature/frontend/wyw: Merge made by the 'ort' strategy.
+[33m28e57a84[m HEAD@{24}: checkout: moving from feature/frontend/wyw to feature/frontend/lzh
+[33m4a8b8d67[m[33m ([m[1;32mfeature/frontend/wyw[m[33m)[m HEAD@{25}: checkout: moving from feature/frontend/wyw to feature/frontend/wyw
+[33m4a8b8d67[m[33m ([m[1;32mfeature/frontend/wyw[m[33m)[m HEAD@{26}: checkout: moving from feature/frontend/lzh to feature/frontend/wyw
+[33m28e57a84[m HEAD@{27}: commit: 执行端修改密码、获取用户信息接口接入
+[33m20466be3[m HEAD@{28}: commit: 执行端验证码登录和退出登录接入部分完善
+[33maa950241[m[33m ([m[1;32mfeature/frontend/gsx1[m[33m)[m HEAD@{29}: merge origin/feature/frontend/gsx1: Fast-forward
+[33m09811f22[m HEAD@{30}: checkout: moving from feature/frontend/gsx1 to feature/frontend/lzh
+[33maa950241[m[33m ([m[1;32mfeature/frontend/gsx1[m[33m)[m HEAD@{31}: pull: Fast-forward
+[33m09811f22[m HEAD@{32}: checkout: moving from feature/frontend/lzh to feature/frontend/gsx1
+[33m09811f22[m HEAD@{33}: merge origin/feature/frontend/gsx1: Fast-forward
+[33mb9268aa9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/frontend/lzh1[m[33m, [m[1;31morigin/feature/frontend/lzh1[m[33m)[m HEAD@{34}: checkout: moving from feature/frontend/gsx1 to feature/frontend/lzh
+[33m09811f22[m HEAD@{35}: checkout: moving from feature/frontend/gsx to feature/frontend/gsx1
+[33md685d721[m[33m ([m[1;31morigin/feature/frontend/gsx[m[33m, [m[1;32mfeature/frontend/gsx[m[33m)[m HEAD@{36}: checkout: moving from feature/frontend/lzh to feature/frontend/gsx
+[33mb9268aa9[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeature/frontend/lzh1[m[33m, [m[1;31morigin/feature/frontend/lzh1[m[33m)[m HEAD@{37}: commit: 加入调试时需用到的接口配置
+[33m1b2ec68a[m HEAD@{38}: merge origin/feature/frontend/gsx1: Merge made by the 'ort' strategy.
+[33mbd19fe14[m HEAD@{39}: merge origin/feature/frontend/wyw: Fast-forward
+[33m2064a472[m HEAD@{40}: commit: 完成执行端全局说明页面
+[33mc436a166[m HEAD@{41}: merge origin/feature/frontend/wyw: Merge made by the 'ort' strategy.
+[33m18edba8b[m HEAD@{42}: commit: 优化执行端部分UI
+[33md685d721[m[33m ([m[1;31morigin/feature/frontend/gsx[m[33m, [m[1;32mfeature/frontend/gsx[m[33m)[m HEAD@{43}: merge origin/feature/frontend/gsx: Fast-forward
+[33mc6b0e642[m HEAD@{44}: commit: 优化执行端部分UI
+[33m9d3eb3f0[m HEAD@{45}: commit: 优化执行端部分UI
+[33mdb0aefff[m HEAD@{46}: merge origin/feature/frontend/gsx: Merge made by the 'ort' strategy.
+[33mf3b402ac[m HEAD@{47}: merge origin/feature/frontend/wyw: Fast-forward
+[33m7b71a6dd[m HEAD@{48}: commit: 开发各模块审核、整改、提交、执行成功等页面
+[33ma6ddd360[m HEAD@{49}: commit: 可复用模块列表页面、退出按钮、学校选择层级关系
+[33m44300849[m HEAD@{50}: merge origin/feature/frontend/wyw: Fast-forward
+[33m077acf6e[m HEAD@{51}: commit: 完成食堂架构跳转的可复用，当前日管控、周排查、联合巡检、视频监控中心等的食堂架构页面已实现
+[33m4ce2a75b[m HEAD@{52}: reset: moving to origin/feature/frontend/wyw
+[33m6bde500a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/feature/backend/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{53}: checkout: moving from main to feature/frontend/lzh
+[33m6bde500a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/feature/backend/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{54}: checkout: moving from main to main
+[33m6bde500a[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/feature/backend/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{55}: pull origin main: Fast-forward
+[33m0146c3b9[m HEAD@{56}: checkout: moving from feature/frontend/main to main
+[33m8dde6113[m HEAD@{57}: commit: 合并app端页面开发
+[33mdcdb1788[m HEAD@{58}: pull: Fast-forward
+[33mc60e1f1e[m HEAD@{59}: checkout: moving from feature/frontend/lzh to feature/frontend/main
+[33m77d9d871[m HEAD@{60}: commit: 合并app端页面开发
+[33mc584d36f[m HEAD@{61}: commit (merge): 监管端登录模块基础完成
+[33m82a8f1fb[m HEAD@{62}: checkout: moving from feature/frontend/main to feature/frontend/lzh
+[33mc60e1f1e[m HEAD@{63}: commit: 监管端页面框架搭建
+[33m8423c940[m HEAD@{64}: commit: app端基础框架搭建
+[33m73aa04ce[m HEAD@{65}: checkout: moving from feature/frontend/lzh to feature/frontend/main
+[33m82a8f1fb[m HEAD@{66}: commit: app端基础框架搭建
+[33md573e47c[m HEAD@{67}: commit (merge): Merge remote-tracking branch 'origin/feature/frontend/wyw' into feature/frontend/lzh
+[33mc20d0ebc[m HEAD@{68}: commit (merge): Merge remote-tracking branch 'origin/feature/backend/main' into feature/frontend/lzh
+[33m39168c9d[m HEAD@{69}: commit: 电子台账提交、记录、视频查看页面更改，逻辑符合新需求
+[33me68ae9f7[m HEAD@{70}: commit (merge): Merge remote-tracking branch 'origin/feature/backend/main' into feature/frontend/lzh
+[33m6a0de1e7[m HEAD@{71}: commit: 用户与组织管理模块部分API调用实现
+[33m5f437941[m HEAD@{72}: commit: 修复部分报错
+[33m49eac54d[m HEAD@{73}: commit: 完成联合巡检、视频集控中心、电子台账中心、食安指数处理记录等页面静态开发
+[33m6ab6b1a7[m HEAD@{74}: commit: 完成周排查和月调度页面开发
+[33m0464b3a3[m HEAD@{75}: commit: 完成日管控页面开发
+[33m7efdaf30[m HEAD@{76}: commit (merge): Merge remote-tracking branch 'origin/feature/frontend/main' into feature/frontend/lzh
+[33mb37f954d[m HEAD@{77}: commit: 优化侧边栏和导航栏，开发首页UI
+[33mf799900f[m HEAD@{78}: merge origin/feature/frontend/cwy: Merge made by the 'ort' strategy.
+[33m7b8a184e[m HEAD@{79}: checkout: moving from feature/frontend/cwy to feature/frontend/lzh
+[33mb729c1e0[m[33m ([m[1;32mfeature/frontend/cwy[m[33m)[m HEAD@{80}: checkout: moving from feature/frontend/lzh to feature/frontend/cwy
+[33m7b8a184e[m HEAD@{81}: checkout: moving from feature/frontend/cwy to feature/frontend/lzh
+[33mb729c1e0[m[33m ([m[1;32mfeature/frontend/cwy[m[33m)[m HEAD@{82}: checkout: moving from feature/frontend/lzh to feature/frontend/cwy
+[33m7b8a184e[m HEAD@{83}: commit: 完成食堂中心部分全部页面
+[33m99712e2b[m HEAD@{84}: checkout: moving from feature/frontend/tjj to feature/frontend/lzh
+[33m087490b7[m[33m ([m[1;32mfeature/frontend/tjj[m[33m)[m HEAD@{85}: commit: build: Add initial .gitignore
+[33md481c8cf[m HEAD@{86}: checkout: moving from feature/frontend/lzh to feature/frontend/tjj
+[33m99712e2b[m HEAD@{87}: commit: 开发登录页、执行端用户管理页面，组装可复用组件
+[33m4ab664df[m HEAD@{88}: reset: moving to origin/feature/frontend/main
+[33m4ab664df[m HEAD@{89}: reset: moving to origin/feature/frontend/main
+[33m418ecb39[m HEAD@{90}: commit (merge): Merge remote-tracking branch 'origin/feature/frontend/wyw' into feature/frontend/lzh
+[33me0ad3c0d[m HEAD@{91}: commit (merge): Merge remote-tracking branch 'origin/feature/frontend/main' into feature/frontend/lzh
+[33m0471da92[m HEAD@{92}: commit: 完成Day2任务，配置Vue Router
+[33mf1294f64[m HEAD@{93}: commit: 创建web-execution项目
+[33m14b2a17e[m HEAD@{94}: merge origin/feature/frontend/main: Fast-forward
+[33m0146c3b9[m HEAD@{95}: checkout: moving from feature/frontend/lzh to feature/frontend/lzh
+[33m0146c3b9[m HEAD@{96}: checkout: moving from main to feature/frontend/lzh
+[33m0146c3b9[m HEAD@{97}: clone: from https://github.com/Ruaww06/Safefood-Platform.git

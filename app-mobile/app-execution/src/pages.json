@@ -1,0 +1,277 @@
+{
+  "pages": [
+    {
+      "path": "pages/login/guide",
+      "style": {
+        "navigationBarTitleText": "引导页",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/login/login",
+      "style": {
+        "navigationBarTitleText": "登录",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/login/register",
+      "style": {
+        "navigationBarTitleText": "注册",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/login/forget-password",
+      "style": {
+        "navigationBarTitleText": "忘记密码"
+      }
+    },
+    {
+      "path": "pages/login/change-password",
+      "style": {
+        "navigationBarTitleText": "修改密码"
+      }
+    },
+    {
+      "path": "pages/executor/index/index",
+      "style": {
+        "navigationBarTitleText": "首页",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/executor/task/task",
+      "style": {
+        "navigationBarTitleText": "任务列表"
+      }
+    },
+    {
+      "path": "pages/executor/check/check",
+      "style": {
+        "navigationBarTitleText": "检查执行"
+      }
+    },
+    {
+      "path": "pages/executor/index/risk-reminder",
+      "style": {
+        "navigationBarTitleText": "人员风险提醒"
+      }
+    },
+    {
+      "path": "pages/executor/my/my",
+      "style": {
+        "navigationBarTitleText": "我的",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/executor/my/employee/employee",
+      "style": {
+        "navigationBarTitleText": "员工清单",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/executor/my/employee/add-employee",
+      "style": {
+        "navigationBarTitleText": "新增员工",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/executor/my/settings/settings",
+      "style": {
+        "navigationBarTitleText": "设置"
+      }
+    },
+    {
+      "path": "pages/executor/my/change-phone/change-phone",
+      "style": {
+        "navigationBarTitleText": "更改手机号码"
+      }
+    },
+    {
+      "path": "pages/executor/my/change-password/change-password",
+      "style": {
+        "navigationBarTitleText": "修改密码"
+      }
+    },
+    {
+      "path": "pages/executor/my/profile/profile",
+      "style": {
+        "navigationStyle": "custom",
+        "navigationBarTitleText": "个人资料"
+      }
+    },
+    {
+      "path": "pages/executor/my/notifications/notifications",
+      "style": {
+        "navigationBarTitleText": "通知"
+      }
+    },
+    {
+      "path": "pages/executor/my/video/area",
+      "style": {
+        "navigationBarTitleText": "选择片区",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/executor/my/video/school-type",
+      "style": {
+        "navigationBarTitleText": "选择学校类型",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/executor/my/video/school",
+      "style": {
+        "navigationBarTitleText": "选择学校",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/executor/my/video/view",
+      "style": {
+        "navigationBarTitleText": "视频查看",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/executor/sop/single-canteen/single-canteen",
+      "style": {
+        "navigationBarTitleText": "单个食堂 SOP",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/executor/sop/daily-control-form-submitted/task-list",
+      "style": {
+        "navigationBarTitleText": "日管控"
+      }
+    },
+    {
+      "path": "pages/executor/sop/daily-control-form-submitted/daily-control-form-submitted",
+      "style": {
+        "navigationBarTitleText": "高中日管控检查表"
+      }
+    },
+    {
+      "path": "pages/executor/sop/daily-control-form-submitted/daily-control-rectification/daily-control-rectification",
+      "style": {
+        "navigationBarTitleText": "高中日管控检查表记录"
+      }
+    },
+    {
+      "path": "pages/executor/sop/daily-control-form-submitted/daily-control-completed",
+      "style": {
+        "navigationBarTitleText": "日管控记录详情"
+      }
+    },
+    {
+      "path": "pages/executor/sop/weekly-inspection/weekly-inspection",
+      "style": {
+        "navigationBarTitleText": "周排查"
+      }
+    },
+    {
+      "path": "pages/executor/sop/weekly-inspection/weekly-inspection-rectification/weekly-inspection-rectification",
+      "style": {
+        "navigationBarTitleText": "周排查记录整改"
+      }
+    },
+    {
+      "path": "pages/executor/sop/weekly-inspection/weekly-inspection-completed",
+      "style": {
+        "navigationBarTitleText": "周排查记录详情"
+      }
+    },
+    {
+      "path": "pages/executor/sop/video-inspection/video-inspection",
+      "style": {
+        "navigationBarTitleText": "视频巡检"
+      }
+    },
+    {
+      "path": "pages/executor/sop/video-inspection/video-inspection-rectification/video-inspection-rectification",
+      "style": {
+        "navigationBarTitleText": "视频巡检记录整改"
+      }
+    },
+    {
+      "path": "pages/executor/sop/video-inspection/video-inspection-completed",
+      "style": {
+        "navigationBarTitleText": "视频巡检记录详情"
+      }
+    },
+    {
+      "path": "pages/executor/sop/joint-inspection/joint-inspection",
+      "style": {
+        "navigationBarTitleText": "联合巡检"
+      }
+    },
+    {
+      "path": "pages/executor/sop/joint-inspection/joint-inspection-rectification/joint-inspection-rectification",
+      "style": {
+        "navigationBarTitleText": "联合巡检记录整改"
+      }
+    },
+    {
+      "path": "pages/executor/sop/joint-inspection/joint-inspection-completed",
+      "style": {
+        "navigationBarTitleText": "联合巡检记录详情"
+      }
+    },
+    {
+      "path": "pages/executor/sop/monthly-scheduling/monthly-scheduling",
+      "style": {
+        "navigationBarTitleText": "月调度"
+      }
+    },
+    {
+      "path": "pages/executor/sop/monthly-scheduling/monthly-scheduling-detail/monthly-scheduling-detail",
+      "style": {
+        "navigationBarTitleText": ""
+      }
+    },
+    {
+      "path": "pages/common/debug",
+      "style": {
+        "navigationBarTitleText": "环境配置"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "食品安全监管平台",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#333333",
+    "borderStyle": "black",
+    "backgroundColor": "#ffffff",
+    "list": [
+      {
+        "pagePath": "pages/executor/index/index",
+        "text": "首页",
+        "iconPath": "static/tabbar/home.svg",
+        "selectedIconPath": "static/tabbar/home-active.svg"
+      },
+      {
+        "pagePath": "pages/executor/sop/single-canteen/single-canteen",
+        "text": "SOP数据中心",
+        "iconPath": "static/tabbar/task.svg",
+        "selectedIconPath": "static/tabbar/task-active.svg"
+      },
+      {
+        "pagePath": "pages/executor/my/my",
+        "text": "我的食堂",
+        "iconPath": "static/tabbar/mine.svg",
+        "selectedIconPath": "static/tabbar/mine-active.svg"
+      }
+    ]
+  }
+}

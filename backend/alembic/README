@@ -1,0 +1,205 @@
+# 数据库迁移指南
+
+本文档说明如何使用 Alembic 管理 Safefood-Platform 的数据库迁移。
+
+---
+
+## 配置
+
+### 数据库连接
+
+数据库 URL 在 `app/core/config.py` 的 `settings.database_url` 中配置。
+
+开发环境默认使用 SQLite：
+```
+DATABASE_URL=sqlite+aiosqlite:///./dev.db
+```
+
+生产环境使用 PostgreSQL/MySQL：
+```
+DATABASE_URL=postgresql+asyncpg://user:pass@localhost/dbname
+DATABASE_URL=mysql+aiomysql://user:pass@localhost/dbname
+```
+
+### 自动模型发现
+
+`alembic/env.py` 中已配置自动导入所有模型：
+
+```python
+from app.modules.ledger.models import LedgerTemplate, LedgerTask, LedgerInstance, DeviceBuffer
+from app.modules.user.models import ExternalIdentity, Org, Permission, Role, RolePermission, Tenant, User, UserRole
+```
+
+新增模块时，需要在此文件中导入对应的模型，以便 Alembic 自动生成迁移。
+
+---
+
+## 常用命令
+
+所有命令在 `backend/` 目录下执行：
+
+### 1. 创建新迁移
+
+```bash
+alembic revision --autogenerate -m "描述变更内容"
+```
+
+示例：
+```bash
+alembic revision --autogenerate -m "add_user_phone_column"
+```
+
+**注意**：
+- 确保先修改了 SQLAlchemy 模型（`app/modules/*/models.py`）
+- 确保 `alembic/env.py` 中已导入新模型
+- 迁移文件会生成在 `alembic/versions/` 目录
+
+### 2. 应用迁移
+
+```bash
+alembic upgrade head
+```
+
+这会将数据库升级到最新版本。
+
+### 3. 回滚迁移
+
+```bash
+# 回滚一个版本
+alembic downgrade -1
+
+# 回滚到特定版本（使用版本号）
+alembic downgrade <revision_id>
+
+# 回滚到初始状态（慎用！）
+alembic downgrade base
+```
+
+### 4. 查看迁移状态
+
+```bash
+# 查看当前版本
+alembic current
+
+# 查看迁移历史
+alembic history
+
+# 查看未应用的迁移
+alembic heads
+```
+
+### 5. 生成空迁移模板
+
+如果只需写自定义 SQL，不依赖模型变更：
+
+```bash
+alembic revision -m "custom_migration"
+```
+
+然后在生成的文件中手动编写 `upgrade()` 和 `downgrade()` 函数。
+
+---
+
+## 迁移文件结构
+
+生成的迁移文件示例：
+
+```python
+"""add_user_phone_column
+
+Revision ID: abc123def456
+Revises: 74f8aad4bd97
+Create Date: 2026-03-12 10:00:00.000000
+
+"""
+from alembic import op
+import sqlalchemy as sa
+
+revision = 'abc123def456'
+down_revision = '74f8aad4bd97'
+
+def upgrade() -> None:
+    op.add_column('users', sa.Column('phone', sa.String(length=20), nullable=True))
+
+def downgrade() -> None:
+    op.drop_column('users', 'phone')
+```
+
+---
+
+## 最佳实践
+
+### 1. 每次变更单独迁移
+
+不要将多个不相关的变更合并到一个迁移文件中。
+
+### 2. 必须编写 downgrade
+
+确保每个迁移都能安全回滚。
+
+### 3. 提交迁移文件
+
+将生成的迁移文件提交到 Git 仓库，确保团队成员同步。
+
+### 4. 生产环境迁移
+
+在生产环境执行迁移前：
+1. 备份数据库
+2. 在测试环境验证迁移
+3. 在维护窗口期间执行
+
+```bash
+# 生产环境迁移（示例）
+DATABASE_URL=postgresql+asyncpg://user:pass@prod-host/dbname alembic upgrade head
+```
+
+### 5. SQLite 限制
+
+某些操作在 SQLite 上不支持（如 `ALTER COLUMN`）。如需修改列定义，考虑：
+- 创建新表 + 迁移数据
+- 或使用批处理模式（batch mode）
+
+---
+
+## 常见问题
+
+### Q: 迁移时提示 "No such table"
+
+确保 `alembic/env.py` 中已导入相关模型。
+
+### Q: 自动生成迁移为空
+
+检查：
+1. 模型是否继承自 `Base`
+2. 模型是否已导入到 `env.py`
+3. 元数据是否正确注册到 `target_metadata`
+
+### Q: 迁移冲突（多个 head）
+
+如果团队多人同时创建迁移，可能出现多个 head：
+
+```bash
+# 查看冲突
+alembic heads
+
+# 生成合并迁移
+alembic merge -m "merge_heads"
+```
+
+### Q: 如何删除错误的迁移
+
+如果迁移文件还未应用：
+1. 删除 `alembic/versions/` 中的迁移文件
+2. 调整相关迁移的 `down_revision`
+
+如果迁移已应用：
+1. 回滚迁移：`alembic downgrade -1`
+2. 删除迁移文件
+3. 从 `alembic_version` 表中删除对应记录
+
+---
+
+## 相关文档
+
+- [Alembic 官方文档](https://alembic.sqlalchemy.org/)
+- [SQLAlchemy 2.0 文档](https://docs.sqlalchemy.org/en/20/)

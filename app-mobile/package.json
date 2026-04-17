@@ -1,0 +1,13 @@
+{
+  "name": "safefood-mobile-monorepo",
+  "private": true,
+  "workspaces": [
+    "app-admin",
+    "app-execution",
+    "common"
+  ],
+  "scripts": {
+    "dev:admin": "npm run dev:h5 --workspace=app-admin",
+    "dev:execution": "npm run dev:h5 --workspace=app-execution"
+  }
+}

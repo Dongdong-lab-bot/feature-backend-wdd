@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "useDefineForClassFields": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "jsx": "preserve",
+    "sourceMap": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "lib": ["ESNext", "DOM"],
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "typeRoots": [
+      "../web-execution/node_modules/@types"
+    ],
+    "paths": {
+      "vue": ["../web-execution/node_modules/vue"],
+      "vue-router": ["../web-execution/node_modules/vue-router"],
+      "element-plus": ["../web-execution/node_modules/element-plus"],
+      "@element-plus/icons-vue": ["../web-execution/node_modules/@element-plus/icons-vue"],
+      "vite/client": ["../web-execution/node_modules/vite/client"]
+    }
+  },
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"]
+}

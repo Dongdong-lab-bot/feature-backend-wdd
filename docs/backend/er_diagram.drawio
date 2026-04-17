@@ -1,0 +1,128 @@
+<mxfile host="Electron" modified="2023-10-01T00:00:00.000Z" agent="5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.6.8 Chrome/114.0.5735.289 Electron/25.5.0 Safari/537.36" etag="12345" version="21.6.8" type="device">
+      <diagram id="Page-1" name="Page-1">
+        <mxGraphModel dx="1422" dy="794" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+          <root>
+            <mxCell id="0" />
+            <mxCell id="1" parent="0" />
+            <mxCell id="2" value="&lt;h1&gt;ER Diagram Source&lt;/h1&gt;&lt;p&gt;这是自动同步的 Mermaid 源码，请点击 Insert -&gt; Advanced -&gt; Mermaid 重新渲染&lt;/p&gt;&lt;pre&gt;erDiagram
+    %% 智慧食安平台 ER图 (Module 1 + Module 2 完整版)
+    tenants {
+        INTEGER id PK &quot;&quot;
+        VARCHAR name  &quot;&quot;
+        VARCHAR status  &quot;&quot;
+        DATETIME created_at  &quot;&quot;
+        DATETIME updated_at  &quot;&quot;
+    }
+    orgs {
+        INTEGER id PK &quot;&quot;
+        INTEGER tenant_id FK &quot;&quot;
+        INTEGER parent_id FK &quot;&quot;
+        VARCHAR name  &quot;&quot;
+        VARCHAR org_type  &quot;&quot;
+        INTEGER manager_id FK &quot;&quot;
+        DATETIME created_at  &quot;&quot;
+        DATETIME updated_at  &quot;&quot;
+    }
+    roles {
+        INTEGER id PK &quot;&quot;
+        INTEGER tenant_id FK &quot;&quot;
+        VARCHAR name  &quot;&quot;
+        VARCHAR role_type  &quot;&quot;
+        DATETIME created_at  &quot;&quot;
+        DATETIME updated_at  &quot;&quot;
+    }
+    users {
+        INTEGER id PK &quot;&quot;
+        INTEGER tenant_id FK &quot;&quot;
+        INTEGER org_id FK &quot;&quot;
+        VARCHAR username  &quot;&quot;
+        VARCHAR real_name  &quot;&quot;
+        VARCHAR email  &quot;&quot;
+        VARCHAR mobile  &quot;&quot;
+        VARCHAR password_hash  &quot;&quot;
+        VARCHAR role_type  &quot;&quot;
+        VARCHAR status  &quot;&quot;
+        INTEGER token_version  &quot;&quot;
+        DATETIME created_at  &quot;&quot;
+        DATETIME updated_at  &quot;&quot;
+    }
+    user_roles {
+        INTEGER user_id PK &quot;&quot;
+        INTEGER role_id PK &quot;&quot;
+        INTEGER tenant_id FK &quot;&quot;
+    }
+    permissions {
+        INTEGER id PK &quot;&quot;
+        VARCHAR code  &quot;&quot;
+        VARCHAR name  &quot;&quot;
+    }
+    role_permissions {
+        INTEGER role_id PK &quot;&quot;
+        INTEGER permission_id PK &quot;&quot;
+        INTEGER tenant_id FK &quot;&quot;
+    }
+    biz_ledger_template {
+        INTEGER id PK &quot;&quot;
+        VARCHAR title  &quot;模板标题&quot;
+        JSON schema  &quot;表单Schema定义&quot;
+        VARCHAR hash  &quot;Schema哈希值&quot;
+        BOOLEAN is_deleted  &quot;软删除标记&quot;
+        DATETIME create_time  &quot;&quot;
+        INTEGER tenant_id  &quot;租户ID&quot;
+    }
+    biz_ledger_task {
+        INTEGER id PK &quot;&quot;
+        VARCHAR name  &quot;任务名称&quot;
+        INTEGER template_id FK &quot;&quot;
+        VARCHAR cron  &quot;Cron表达式&quot;
+        BOOLEAN is_active  &quot;是否启用&quot;
+        JSON target_config  &quot;派发范围配置&quot;
+        DATETIME create_time  &quot;&quot;
+        INTEGER tenant_id  &quot;租户ID&quot;
+    }
+    biz_ledger_instance {
+        INTEGER id PK &quot;&quot;
+        INTEGER template_id FK &quot;&quot;
+        INTEGER task_id FK &quot;&quot;
+        INTEGER canteen_id  &quot;所属食堂ID&quot;
+        VARCHAR status  &quot;状态: PENDING/FILLING/SIGNED/ARCHIVED&quot;
+        JSON schema_snapshot  &quot;生成时的模板快照&quot;
+        JSON content  &quot;填报内容&quot;
+        VARCHAR security_hash  &quot;防篡改Hash&quot;
+        VARCHAR signature_image  &quot;签字图片URL&quot;
+        DATETIME create_date  &quot;业务日期&quot;
+        DATETIME create_time  &quot;&quot;
+        DATETIME submit_time  &quot;提交时间&quot;
+        INTEGER tenant_id  &quot;租户ID&quot;
+    }
+    biz_device_buffer {
+        INTEGER id PK &quot;&quot;
+        VARCHAR device_uid  &quot;设备唯一标识&quot;
+        JSON raw_data  &quot;硬件原始数据&quot;
+        DATETIME receive_time  &quot;&quot;
+        BOOLEAN is_processed  &quot;&quot;
+        DATETIME expire_time  &quot;&quot;
+        INTEGER tenant_id  &quot;租户ID&quot;
+    }
+
+    %% --- 关系定义 (动态表名) ---
+    tenants ||--|{ orgs : &quot;owns&quot;
+    tenants ||--|{ users : &quot;owns&quot;
+    orgs ||--|{ users : &quot;belongs_to&quot;
+    users ||--|{ user_roles : &quot;has&quot;
+    roles ||--|{ user_roles : &quot;has&quot;
+    roles ||--|{ role_permissions : &quot;has&quot;
+    permissions ||--|{ role_permissions : &quot;granted&quot;
+    %% 模块二关系
+    biz_ledger_template ||--|{ biz_ledger_task : &quot;defines&quot;
+    biz_ledger_template ||--|{ biz_ledger_instance : &quot;instantiates&quot;
+    biz_ledger_task ||--|{ biz_ledger_instance : &quot;generates&quot;
+    orgs ||--|{ biz_ledger_instance : &quot;canteen_audit&quot;
+    tenants ||--|{ biz_device_buffer : &quot;buffers&quot;&lt;/pre&gt;" style="text;html=1;strokeColor=none;fillColor=none;spacing=5;spacingTop=-20;whiteSpace=wrap;overflow=hidden;rounded=0;" vertex="1" parent="1">
+              <mxGeometry x="40" y="40" width="600" height="500" as="geometry" />
+            </mxCell>
+          </root>
+        </mxGraphModel>
+      </diagram>
+    </mxfile>
+    

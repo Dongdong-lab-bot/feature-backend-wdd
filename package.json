@@ -1,0 +1,20 @@
+{
+  "name": "safefood-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "食品安全监管平台",
+  "workspaces": [
+    "frontend/common",
+    "frontend/web-admin",
+    "frontend/web-execution"
+  ],
+  "scripts": {
+    "dev:admin": "npm run dev -w web-admin",
+    "dev:execution": "npm run dev -w web-execution",
+    "build:admin": "npm run build -w web-admin",
+    "build:execution": "npm run build -w web-execution"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
