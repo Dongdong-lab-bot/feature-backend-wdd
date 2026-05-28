@@ -1,0 +1,161 @@
+2026-05-21 10:34:18.594 | WARNING  | src.core.logger:198 | trace_id=2be7c795cc2b4158b4ff7a6787754bb0 | AsyncLLMClient 初始化失败，自动降级关键词路由: Missing credentials. Please pass an `api_key`, `workload_identity`, `admin_api_key`, or set the `OPENAI_API_KEY` or `OPENAI_ADMIN_KEY` environment variable.
+2026-05-21 10:34:18.596 | AUDIT    | src.core.logger:216 | trace_id=2be7c795cc2b4158b4ff7a6787754bb0 | Agent status changed | agent=RouterService agent_id=6581485c5a46496c914d2c20705707fb old=initializing new=idle
+2026-05-21 10:40:54.845 | AUDIT    | src.core.logger:216 | trace_id=verify_deepseek | llm_call completed
+2026-05-21 10:41:09.144 | AUDIT    | src.core.logger:216 | trace_id=f6181cdb179f4518820f0301bed5e513 | Agent status changed | agent=RouterService agent_id=7d48cd77f01942e285ce99a72ac22708 old=initializing new=idle
+2026-05-21 10:41:57.359 | AUDIT    | src.core.logger:216 | trace_id=a5cc0710ca3149cdb8caa3d1ea445d32 | Agent status changed | agent=RouterService agent_id=005c2bc4efa74888927679a2350d3c61 old=initializing new=idle
+2026-05-21 10:42:13.985 | ERROR    | src.core.logger:201 | trace_id=b9c1cc5ad39a4f94aaabddb5db5583a0 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:42:13.985 | AUDIT    | src.core.logger:216 | trace_id=b9c1cc5ad39a4f94aaabddb5db5583a0 | JWT dev fallback mode used
+2026-05-21 10:42:13.986 | AUDIT    | src.core.logger:216 | trace_id=b9c1cc5ad39a4f94aaabddb5db5583a0 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:42:40.251 | WARNING  | src.core.logger:198 | trace_id=b9c1cc5ad39a4f94aaabddb5db5583a0 | RouterSessionManager Redis connection failed, fallback to memory: Error 22 connecting to localhost:6379. 远程计算机拒绝网络连接。.
+2026-05-21 10:42:40.251 | AUDIT    | src.core.logger:216 | trace_id=b9c1cc5ad39a4f94aaabddb5db5583a0 | 创建聊天会话 | user_id=dev_user | session_id=SES1779331360251BSC
+2026-05-21 10:42:40.251 | ERROR    | src.core.logger:201 | trace_id=e75fe68962e24f28a2d87f9a183bcf32 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:42:40.251 | AUDIT    | src.core.logger:216 | trace_id=e75fe68962e24f28a2d87f9a183bcf32 | JWT dev fallback mode used
+2026-05-21 10:42:40.251 | AUDIT    | src.core.logger:216 | trace_id=e75fe68962e24f28a2d87f9a183bcf32 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:42:40.267 | ERROR    | src.core.logger:201 | trace_id=e75fe68962e24f28a2d87f9a183bcf32 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:42:40.269 | AUDIT    | src.core.logger:216 | trace_id=e75fe68962e24f28a2d87f9a183bcf32 | JWT dev fallback mode used
+2026-05-21 10:42:40.270 | AUDIT    | src.core.logger:216 | trace_id=e75fe68962e24f28a2d87f9a183bcf32 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:42:40.271 | AUDIT    | src.core.logger:216 | trace_id=e75fe68962e24f28a2d87f9a183bcf32 | chat_router入口 | session_id=SES1779331360251BSC | request_id=None | input_type=text | has_confirmation=False | event_driven=False | message_length=11
+2026-05-21 10:42:40.272 | ERROR    | src.core.logger:201 | trace_id=e75fe68962e24f28a2d87f9a183bcf32 | chat_router 未预期异常: 'RouterSessionManager' object has no attribute '_redis_usable'
+2026-05-21 10:42:40.272 | AUDIT    | src.core.logger:216 | trace_id=e75fe68962e24f28a2d87f9a183bcf32 | chat_router未预期异常 | session_id=SES1779331360251BSC | request_id=None | exc=AttributeError
+2026-05-21 10:42:40.275 | AUDIT    | src.core.logger:216 | trace_id=4ec452c885a44317a1c2a7f953a2a80c | HTTP聊天消息处理完成 | user_id=dev_user | session_id=SES1779331360251BSC | response_type=error
+2026-05-21 10:42:40.300 | ERROR    | src.core.logger:201 | trace_id=bd3c6dc7bdaf4f55a556694601ebe177 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:42:40.300 | AUDIT    | src.core.logger:216 | trace_id=bd3c6dc7bdaf4f55a556694601ebe177 | JWT dev fallback mode used
+2026-05-21 10:42:40.302 | AUDIT    | src.core.logger:216 | trace_id=bd3c6dc7bdaf4f55a556694601ebe177 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:42:40.303 | ERROR    | src.core.logger:201 | trace_id=bd3c6dc7bdaf4f55a556694601ebe177 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:42:40.303 | AUDIT    | src.core.logger:216 | trace_id=bd3c6dc7bdaf4f55a556694601ebe177 | JWT dev fallback mode used
+2026-05-21 10:42:40.303 | AUDIT    | src.core.logger:216 | trace_id=bd3c6dc7bdaf4f55a556694601ebe177 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:42:40.305 | AUDIT    | src.core.logger:216 | trace_id=bd3c6dc7bdaf4f55a556694601ebe177 | chat_router入口 | session_id=SES1779331360251BSC | request_id=None | input_type=text | has_confirmation=False | event_driven=False | message_length=7
+2026-05-21 10:42:40.305 | ERROR    | src.core.logger:201 | trace_id=bd3c6dc7bdaf4f55a556694601ebe177 | chat_router 未预期异常: 'RouterSessionManager' object has no attribute '_redis_usable'
+2026-05-21 10:42:40.306 | AUDIT    | src.core.logger:216 | trace_id=bd3c6dc7bdaf4f55a556694601ebe177 | chat_router未预期异常 | session_id=SES1779331360251BSC | request_id=None | exc=AttributeError
+2026-05-21 10:42:40.306 | AUDIT    | src.core.logger:216 | trace_id=8de76035b5ec4b999bd5d87be043f150 | HTTP聊天消息处理完成 | user_id=dev_user | session_id=SES1779331360251BSC | response_type=error
+2026-05-21 10:43:39.989 | AUDIT    | src.core.logger:216 | trace_id=524aff908e914aed84a8eb69f397cd14 | Agent status changed | agent=RouterService agent_id=c8852602f56f4ab0aed80385a2d4bb8a old=initializing new=idle
+2026-05-21 10:43:51.814 | ERROR    | src.core.logger:201 | trace_id=59d0b26abb19494db6ce7cca6fe44377 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:43:51.814 | AUDIT    | src.core.logger:216 | trace_id=59d0b26abb19494db6ce7cca6fe44377 | JWT dev fallback mode used
+2026-05-21 10:43:51.814 | AUDIT    | src.core.logger:216 | trace_id=59d0b26abb19494db6ce7cca6fe44377 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:44:16.237 | WARNING  | src.core.logger:198 | trace_id=59d0b26abb19494db6ce7cca6fe44377 | RouterSessionManager Redis connection failed, fallback to memory: Error 22 connecting to localhost:6379. 远程计算机拒绝网络连接。.
+2026-05-21 10:44:16.240 | AUDIT    | src.core.logger:216 | trace_id=59d0b26abb19494db6ce7cca6fe44377 | 创建聊天会话 | user_id=dev_user | session_id=SES1779331456240KEG
+2026-05-21 10:44:16.251 | ERROR    | src.core.logger:201 | trace_id=4046c7771e474ff2b2e941a1f15818b1 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:44:16.253 | AUDIT    | src.core.logger:216 | trace_id=4046c7771e474ff2b2e941a1f15818b1 | JWT dev fallback mode used
+2026-05-21 10:44:16.253 | AUDIT    | src.core.logger:216 | trace_id=4046c7771e474ff2b2e941a1f15818b1 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:44:16.253 | ERROR    | src.core.logger:201 | trace_id=4046c7771e474ff2b2e941a1f15818b1 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:44:16.253 | AUDIT    | src.core.logger:216 | trace_id=4046c7771e474ff2b2e941a1f15818b1 | JWT dev fallback mode used
+2026-05-21 10:44:16.253 | AUDIT    | src.core.logger:216 | trace_id=4046c7771e474ff2b2e941a1f15818b1 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:44:16.253 | AUDIT    | src.core.logger:216 | trace_id=4046c7771e474ff2b2e941a1f15818b1 | chat_router入口 | session_id=SES1779331456240KEG | request_id=None | input_type=text | has_confirmation=False | event_driven=False | message_length=11
+2026-05-21 10:44:16.253 | ERROR    | src.core.logger:201 | trace_id=4046c7771e474ff2b2e941a1f15818b1 | chat_router 未预期异常: 'RouterSessionManager' object has no attribute '_redis_usable'
+2026-05-21 10:44:16.253 | AUDIT    | src.core.logger:216 | trace_id=4046c7771e474ff2b2e941a1f15818b1 | chat_router未预期异常 | session_id=SES1779331456240KEG | request_id=None | exc=AttributeError
+2026-05-21 10:44:16.253 | AUDIT    | src.core.logger:216 | trace_id=91f8636f8846430e9e7aaa913871271e | HTTP聊天消息处理完成 | user_id=dev_user | session_id=SES1779331456240KEG | response_type=error
+2026-05-21 10:44:16.267 | ERROR    | src.core.logger:201 | trace_id=d5730116d1fe499ab73a225aaf03f664 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:44:16.269 | AUDIT    | src.core.logger:216 | trace_id=d5730116d1fe499ab73a225aaf03f664 | JWT dev fallback mode used
+2026-05-21 10:44:16.271 | AUDIT    | src.core.logger:216 | trace_id=d5730116d1fe499ab73a225aaf03f664 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:44:16.272 | ERROR    | src.core.logger:201 | trace_id=d5730116d1fe499ab73a225aaf03f664 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:44:16.275 | AUDIT    | src.core.logger:216 | trace_id=d5730116d1fe499ab73a225aaf03f664 | JWT dev fallback mode used
+2026-05-21 10:44:16.277 | AUDIT    | src.core.logger:216 | trace_id=d5730116d1fe499ab73a225aaf03f664 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:44:16.279 | AUDIT    | src.core.logger:216 | trace_id=d5730116d1fe499ab73a225aaf03f664 | chat_router入口 | session_id=SES1779331456240KEG | request_id=None | input_type=text | has_confirmation=False | event_driven=False | message_length=7
+2026-05-21 10:44:16.281 | ERROR    | src.core.logger:201 | trace_id=d5730116d1fe499ab73a225aaf03f664 | chat_router 未预期异常: 'RouterSessionManager' object has no attribute '_redis_usable'
+2026-05-21 10:44:16.283 | AUDIT    | src.core.logger:216 | trace_id=d5730116d1fe499ab73a225aaf03f664 | chat_router未预期异常 | session_id=SES1779331456240KEG | request_id=None | exc=AttributeError
+2026-05-21 10:44:16.284 | AUDIT    | src.core.logger:216 | trace_id=6c5a5b3a424e416886b0b683bee52506 | HTTP聊天消息处理完成 | user_id=dev_user | session_id=SES1779331456240KEG | response_type=error
+2026-05-21 10:44:59.544 | AUDIT    | src.core.logger:216 | trace_id=8bafc20cba634be4b523e5a565919b7c | Agent status changed | agent=RouterService agent_id=99ae43b285444ea6b85194a38cc541b9 old=initializing new=idle
+2026-05-21 10:45:25.137 | ERROR    | src.core.logger:201 | trace_id=745a28714b3c4a0596bb7882de29c2d7 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:45:25.137 | AUDIT    | src.core.logger:216 | trace_id=745a28714b3c4a0596bb7882de29c2d7 | JWT dev fallback mode used
+2026-05-21 10:45:25.141 | AUDIT    | src.core.logger:216 | trace_id=745a28714b3c4a0596bb7882de29c2d7 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:45:53.256 | WARNING  | src.core.logger:198 | trace_id=745a28714b3c4a0596bb7882de29c2d7 | RouterSessionManager Redis connection failed, fallback to memory: Error 22 connecting to localhost:6379. 远程计算机拒绝网络连接。.
+2026-05-21 10:45:53.838 | AUDIT    | src.core.logger:216 | trace_id=745a28714b3c4a0596bb7882de29c2d7 | Agent status changed | agent=RouterService agent_id=47fc890118e742d98f657bf42144a7bf old=initializing new=idle
+2026-05-21 10:46:06.923 | AUDIT    | src.core.logger:216 | trace_id=router-intent | llm_call failed
+2026-05-21 10:46:06.923 | WARNING  | src.core.logger:198 | trace_id=745a28714b3c4a0596bb7882de29c2d7 | router llm route failed, fallback to keywords: [2001] LLM call failed after retries: Error code: 400 - {'error': {'message': 'deepseek-reasoner does not support this tool_choice', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-05-21 10:46:06.926 | AUDIT    | src.core.logger:216 | trace_id=745a28714b3c4a0596bb7882de29c2d7 | Intent routed by keywords | intent=query_detail target_agent=data_agent confidence=0.86
+2026-05-21 10:47:49.079 | AUDIT    | src.core.logger:216 | trace_id=25772bc9a8e846e9a3d3364b6f3c82f0 | Agent status changed | agent=RouterService agent_id=2d407d7f2efd4145a5560e12e457b5c7 old=initializing new=idle
+2026-05-21 10:47:49.324 | ERROR    | src.core.logger:201 | trace_id=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:47:49.324 | AUDIT    | src.core.logger:216 | trace_id=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | JWT dev fallback mode used
+2026-05-21 10:47:49.324 | AUDIT    | src.core.logger:216 | trace_id=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:47:49.324 | AUDIT    | src.core.logger:216 | trace_id=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | chat_router入口 | session_id=T1 | request_id=None | input_type=text | has_confirmation=False | event_driven=False | message_length=11
+2026-05-21 10:47:49.324 | ERROR    | src.core.logger:201 | trace_id=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | chat_router 未预期异常: 'RouterSessionManager' object has no attribute '_redis_usable'
+2026-05-21 10:47:49.324 | AUDIT    | src.core.logger:216 | trace_id=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | chat_router未预期异常 | session_id=T1 | request_id=None | exc=AttributeError
+2026-05-21 10:48:13.097 | AUDIT    | src.core.logger:216 | trace_id=e2dc8c609c474295bd0b79e4a7a4aee3 | Agent status changed | agent=RouterService agent_id=712277580627401fb37afdf0238e12ae old=initializing new=idle
+2026-05-21 10:48:24.999 | ERROR    | src.core.logger:201 | trace_id=ffeff9cf84304b04ba6eb9d27decd000 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:48:24.999 | AUDIT    | src.core.logger:216 | trace_id=ffeff9cf84304b04ba6eb9d27decd000 | JWT dev fallback mode used
+2026-05-21 10:48:24.999 | AUDIT    | src.core.logger:216 | trace_id=ffeff9cf84304b04ba6eb9d27decd000 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:48:49.981 | WARNING  | src.core.logger:198 | trace_id=ffeff9cf84304b04ba6eb9d27decd000 | RouterSessionManager Redis connection failed, fallback to memory: Error 22 connecting to localhost:6379. 远程计算机拒绝网络连接。.
+2026-05-21 10:48:49.981 | AUDIT    | src.core.logger:216 | trace_id=ffeff9cf84304b04ba6eb9d27decd000 | 创建聊天会话 | user_id=dev_user | session_id=SES1779331729981E3T
+2026-05-21 10:48:49.988 | ERROR    | src.core.logger:201 | trace_id=3719200a81764d1f9baa0610b941a074 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:48:49.988 | AUDIT    | src.core.logger:216 | trace_id=3719200a81764d1f9baa0610b941a074 | JWT dev fallback mode used
+2026-05-21 10:48:49.988 | AUDIT    | src.core.logger:216 | trace_id=3719200a81764d1f9baa0610b941a074 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:48:49.988 | ERROR    | src.core.logger:201 | trace_id=3719200a81764d1f9baa0610b941a074 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:48:49.988 | AUDIT    | src.core.logger:216 | trace_id=3719200a81764d1f9baa0610b941a074 | JWT dev fallback mode used
+2026-05-21 10:48:49.988 | AUDIT    | src.core.logger:216 | trace_id=3719200a81764d1f9baa0610b941a074 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:48:49.988 | AUDIT    | src.core.logger:216 | trace_id=3719200a81764d1f9baa0610b941a074 | chat_router入口 | session_id=SES1779331729981E3T | request_id=None | input_type=text | has_confirmation=False | event_driven=False | message_length=11
+2026-05-21 10:48:49.988 | AUDIT    | src.core.logger:216 | trace_id=3719200a81764d1f9baa0610b941a074 | chat_router分支决策 | route_mode=sync | session_id=SES1779331729981E3T | request_id=None
+2026-05-21 10:48:58.528 | AUDIT    | src.core.logger:216 | trace_id=router-intent | llm_call failed
+2026-05-21 10:48:58.530 | WARNING  | src.core.logger:198 | trace_id=3719200a81764d1f9baa0610b941a074 | router llm route failed, fallback to keywords: [2001] LLM call failed after retries: Error code: 400 - {'error': {'message': 'deepseek-reasoner does not support this tool_choice', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-05-21 10:48:58.531 | AUDIT    | src.core.logger:216 | trace_id=3719200a81764d1f9baa0610b941a074 | Intent routed by keywords | intent=need_clarification target_agent=router_agent confidence=0.56
+2026-05-21 10:48:58.531 | AUDIT    | src.core.logger:216 | trace_id=3719200a81764d1f9baa0610b941a074 | chat_router路由识别 | session_id=SES1779331729981E3T | request_id=None | intent_type=need_clarification | confidence=0.56 | missing_slots=0 | target_agent=router_agent
+2026-05-21 10:48:58.531 | AUDIT    | src.core.logger:216 | trace_id=3719200a81764d1f9baa0610b941a074 | chat_router同步回包 | session_id=SES1779331729981E3T | request_id=None | response_type=clarification | success=False | code=6001
+2026-05-21 10:48:58.535 | AUDIT    | src.core.logger:216 | trace_id=8113e1ec89274785af4f90ae8246e3c3 | HTTP聊天消息处理完成 | user_id=dev_user | session_id=SES1779331729981E3T | response_type=clarification
+2026-05-21 10:48:58.544 | ERROR    | src.core.logger:201 | trace_id=b964648944ee4bc486c3ed49a8732b11 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:48:58.550 | AUDIT    | src.core.logger:216 | trace_id=b964648944ee4bc486c3ed49a8732b11 | JWT dev fallback mode used
+2026-05-21 10:48:58.551 | AUDIT    | src.core.logger:216 | trace_id=b964648944ee4bc486c3ed49a8732b11 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:48:58.553 | ERROR    | src.core.logger:201 | trace_id=b964648944ee4bc486c3ed49a8732b11 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:48:58.554 | AUDIT    | src.core.logger:216 | trace_id=b964648944ee4bc486c3ed49a8732b11 | JWT dev fallback mode used
+2026-05-21 10:48:58.555 | AUDIT    | src.core.logger:216 | trace_id=b964648944ee4bc486c3ed49a8732b11 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:48:58.556 | AUDIT    | src.core.logger:216 | trace_id=b964648944ee4bc486c3ed49a8732b11 | chat_router入口 | session_id=SES1779331729981E3T | request_id=None | input_type=text | has_confirmation=False | event_driven=False | message_length=7
+2026-05-21 10:48:58.558 | AUDIT    | src.core.logger:216 | trace_id=b964648944ee4bc486c3ed49a8732b11 | chat_router分支决策 | route_mode=sync | session_id=SES1779331729981E3T | request_id=None
+2026-05-21 10:49:05.975 | AUDIT    | src.core.logger:216 | trace_id=router-intent | llm_call failed
+2026-05-21 10:49:05.976 | WARNING  | src.core.logger:198 | trace_id=b964648944ee4bc486c3ed49a8732b11 | router llm route failed, fallback to keywords: [2001] LLM call failed after retries: Error code: 400 - {'error': {'message': 'deepseek-reasoner does not support this tool_choice', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-05-21 10:49:05.976 | AUDIT    | src.core.logger:216 | trace_id=b964648944ee4bc486c3ed49a8732b11 | Intent routed by keywords | intent=need_clarification target_agent=router_agent confidence=0.56
+2026-05-21 10:49:05.976 | AUDIT    | src.core.logger:216 | trace_id=b964648944ee4bc486c3ed49a8732b11 | chat_router路由识别 | session_id=SES1779331729981E3T | request_id=None | intent_type=need_clarification | confidence=0.56 | missing_slots=0 | target_agent=router_agent
+2026-05-21 10:49:05.976 | AUDIT    | src.core.logger:216 | trace_id=b964648944ee4bc486c3ed49a8732b11 | chat_router同步回包 | session_id=SES1779331729981E3T | request_id=None | response_type=clarification | success=False | code=6001
+2026-05-21 10:49:05.976 | AUDIT    | src.core.logger:216 | trace_id=a6f2df31b8f042348f90fad6f0892cbd | HTTP聊天消息处理完成 | user_id=dev_user | session_id=SES1779331729981E3T | response_type=clarification
+2026-05-21 10:49:30.280 | ERROR    | src.core.logger:201 | trace_id=37b86aee9d944cc98d0a16ad777fe3eb | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:49:30.282 | AUDIT    | src.core.logger:216 | trace_id=37b86aee9d944cc98d0a16ad777fe3eb | JWT dev fallback mode used
+2026-05-21 10:49:30.283 | AUDIT    | src.core.logger:216 | trace_id=37b86aee9d944cc98d0a16ad777fe3eb | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:49:30.283 | AUDIT    | src.core.logger:216 | trace_id=37b86aee9d944cc98d0a16ad777fe3eb | 创建聊天会话 | user_id=dev_user | session_id=SES1779331770283F8B
+2026-05-21 10:49:30.294 | ERROR    | src.core.logger:201 | trace_id=bf2721a76977457cb26db437e02015f4 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:49:30.295 | AUDIT    | src.core.logger:216 | trace_id=bf2721a76977457cb26db437e02015f4 | JWT dev fallback mode used
+2026-05-21 10:49:30.295 | AUDIT    | src.core.logger:216 | trace_id=bf2721a76977457cb26db437e02015f4 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:49:30.295 | ERROR    | src.core.logger:201 | trace_id=bf2721a76977457cb26db437e02015f4 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:49:30.300 | AUDIT    | src.core.logger:216 | trace_id=bf2721a76977457cb26db437e02015f4 | JWT dev fallback mode used
+2026-05-21 10:49:30.301 | AUDIT    | src.core.logger:216 | trace_id=bf2721a76977457cb26db437e02015f4 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:49:30.302 | AUDIT    | src.core.logger:216 | trace_id=bf2721a76977457cb26db437e02015f4 | chat_router入口 | session_id=SES1779331770283F8B | request_id=None | input_type=text | has_confirmation=False | event_driven=False | message_length=11
+2026-05-21 10:49:30.303 | AUDIT    | src.core.logger:216 | trace_id=bf2721a76977457cb26db437e02015f4 | chat_router分支决策 | route_mode=sync | session_id=SES1779331770283F8B | request_id=None
+2026-05-21 10:49:37.903 | ERROR    | src.core.logger:201 | trace_id=bf2721a76977457cb26db437e02015f4 | Fuse opened | name=llm:default threshold=3 failure_count=3
+2026-05-21 10:49:37.903 | AUDIT    | src.core.logger:216 | trace_id=router-intent | llm_call failed
+2026-05-21 10:49:37.911 | WARNING  | src.core.logger:198 | trace_id=bf2721a76977457cb26db437e02015f4 | router llm route failed, fallback to keywords: [2001] LLM call failed after retries: Error code: 400 - {'error': {'message': 'deepseek-reasoner does not support this tool_choice', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-05-21 10:49:37.911 | AUDIT    | src.core.logger:216 | trace_id=bf2721a76977457cb26db437e02015f4 | Intent routed by keywords | intent=need_clarification target_agent=router_agent confidence=0.56
+2026-05-21 10:49:37.911 | AUDIT    | src.core.logger:216 | trace_id=bf2721a76977457cb26db437e02015f4 | chat_router路由识别 | session_id=SES1779331770283F8B | request_id=None | intent_type=need_clarification | confidence=0.56 | missing_slots=0 | target_agent=router_agent
+2026-05-21 10:49:37.911 | AUDIT    | src.core.logger:216 | trace_id=bf2721a76977457cb26db437e02015f4 | chat_router同步回包 | session_id=SES1779331770283F8B | request_id=None | response_type=clarification | success=False | code=6001
+2026-05-21 10:49:37.917 | AUDIT    | src.core.logger:216 | trace_id=b31d355e02bd4e4d95bbfcb241ebbc65 | HTTP聊天消息处理完成 | user_id=dev_user | session_id=SES1779331770283F8B | response_type=clarification
+2026-05-21 10:49:37.928 | ERROR    | src.core.logger:201 | trace_id=6755707b71fc4037900c1e1e9815b120 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:49:37.931 | AUDIT    | src.core.logger:216 | trace_id=6755707b71fc4037900c1e1e9815b120 | JWT dev fallback mode used
+2026-05-21 10:49:37.931 | AUDIT    | src.core.logger:216 | trace_id=6755707b71fc4037900c1e1e9815b120 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:49:37.932 | ERROR    | src.core.logger:201 | trace_id=6755707b71fc4037900c1e1e9815b120 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:49:37.935 | AUDIT    | src.core.logger:216 | trace_id=6755707b71fc4037900c1e1e9815b120 | JWT dev fallback mode used
+2026-05-21 10:49:37.936 | AUDIT    | src.core.logger:216 | trace_id=6755707b71fc4037900c1e1e9815b120 | User authenticated | user_id=dev_user role=enterprise_admin
+2026-05-21 10:49:37.938 | AUDIT    | src.core.logger:216 | trace_id=6755707b71fc4037900c1e1e9815b120 | chat_router入口 | session_id=SES1779331770283F8B | request_id=None | input_type=text | has_confirmation=False | event_driven=False | message_length=7
+2026-05-21 10:49:37.940 | AUDIT    | src.core.logger:216 | trace_id=6755707b71fc4037900c1e1e9815b120 | chat_router分支决策 | route_mode=sync | session_id=SES1779331770283F8B | request_id=None
+2026-05-21 10:49:37.940 | AUDIT    | src.core.logger:216 | trace_id=router-intent | llm_call failed
+2026-05-21 10:49:37.940 | WARNING  | src.core.logger:198 | trace_id=6755707b71fc4037900c1e1e9815b120 | router llm route failed, fallback to keywords: [2003] LLM provider 'default' fuse is OPEN
+2026-05-21 10:49:37.945 | AUDIT    | src.core.logger:216 | trace_id=6755707b71fc4037900c1e1e9815b120 | Intent routed by keywords | intent=need_clarification target_agent=router_agent confidence=0.56
+2026-05-21 10:49:37.945 | AUDIT    | src.core.logger:216 | trace_id=6755707b71fc4037900c1e1e9815b120 | chat_router路由识别 | session_id=SES1779331770283F8B | request_id=None | intent_type=need_clarification | confidence=0.56 | missing_slots=0 | target_agent=router_agent
+2026-05-21 10:49:37.945 | AUDIT    | src.core.logger:216 | trace_id=6755707b71fc4037900c1e1e9815b120 | chat_router同步回包 | session_id=SES1779331770283F8B | request_id=None | response_type=clarification | success=False | code=6001
+2026-05-21 10:49:37.945 | AUDIT    | src.core.logger:216 | trace_id=e3db47d4580d42d082518b6ee0584ed8 | HTTP聊天消息处理完成 | user_id=dev_user | session_id=SES1779331770283F8B | response_type=clarification
+2026-05-21 10:50:46.711 | AUDIT    | src.core.logger:216 | trace_id=6b9c8cd76d94486baa154427218be2fd | Agent status changed | agent=RouterService agent_id=72abb30cad0641fe866c7ac36e31ff20 old=initializing new=idle
+2026-05-21 10:50:54.890 | AUDIT    | src.core.logger:216 | trace_id=router-intent | llm_call failed
+2026-05-21 10:50:54.890 | WARNING  | src.core.logger:198 | trace_id=6b9c8cd76d94486baa154427218be2fd | router llm route failed, fallback to keywords: [2001] LLM call failed after retries: Error code: 400 - {'error': {'message': 'deepseek-reasoner does not support this tool_choice', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-05-21 10:50:54.890 | AUDIT    | src.core.logger:216 | trace_id=6b9c8cd76d94486baa154427218be2fd | Intent routed by keywords | intent=query_detail target_agent=data_agent confidence=0.86
+2026-05-21 10:51:02.448 | AUDIT    | src.core.logger:216 | trace_id=router-intent | llm_call failed
+2026-05-21 10:51:02.448 | WARNING  | src.core.logger:198 | trace_id=6b9c8cd76d94486baa154427218be2fd | router llm route failed, fallback to keywords: [2001] LLM call failed after retries: Error code: 400 - {'error': {'message': 'deepseek-reasoner does not support this tool_choice', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-05-21 10:51:02.452 | AUDIT    | src.core.logger:216 | trace_id=6b9c8cd76d94486baa154427218be2fd | Intent routed by keywords | intent=out_of_domain target_agent=router_agent confidence=0.88
+2026-05-21 10:51:09.868 | ERROR    | src.core.logger:201 | trace_id=6b9c8cd76d94486baa154427218be2fd | Fuse opened | name=llm:default threshold=3 failure_count=3
+2026-05-21 10:51:09.869 | AUDIT    | src.core.logger:216 | trace_id=router-intent | llm_call failed
+2026-05-21 10:51:09.869 | WARNING  | src.core.logger:198 | trace_id=6b9c8cd76d94486baa154427218be2fd | router llm route failed, fallback to keywords: [2001] LLM call failed after retries: Error code: 400 - {'error': {'message': 'deepseek-reasoner does not support this tool_choice', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_request_error'}}
+2026-05-21 10:51:09.869 | AUDIT    | src.core.logger:216 | trace_id=6b9c8cd76d94486baa154427218be2fd | Intent routed by keywords | intent=query_ranking target_agent=data_agent confidence=0.86
+2026-05-21 10:51:09.869 | AUDIT    | src.core.logger:216 | trace_id=router-intent | llm_call failed
+2026-05-21 10:51:09.875 | WARNING  | src.core.logger:198 | trace_id=6b9c8cd76d94486baa154427218be2fd | router llm route failed, fallback to keywords: [2003] LLM provider 'default' fuse is OPEN
+2026-05-21 10:51:09.875 | AUDIT    | src.core.logger:216 | trace_id=6b9c8cd76d94486baa154427218be2fd | Intent routed by keywords | intent=create_task target_agent=triage_agent confidence=0.84
+2026-05-21 11:01:53.596 | AUDIT    | src.core.logger:216 | trace_id=0b56d719fde9463088eebab4ecf567b0 | Agent status changed | agent=RouterService agent_id=b0f6880335f4438382fdb7d518c31a19 old=initializing new=idle
+2026-05-21 11:06:42.275 | AUDIT    | src.core.logger:216 | trace_id=151d01c8eb294ab7adec3d8c4c14013d | Agent status changed | agent=RouterService agent_id=6129ec33d23447b3820495f65ae2f5a5 old=initializing new=idle
+2026-05-21 11:20:59.231 | AUDIT    | src.core.logger:216 | trace_id=287ef933511d44ef97e96170834f27a8 | Agent status changed | agent=RouterService agent_id=a2f3449ad92d4e38a4ebee2ce1c92f49 old=initializing new=idle
+2026-05-21 11:41:49.401 | AUDIT    | src.core.logger:216 | trace_id=7ba5a7cfc0f34b63adcca09f3c6fca12 | Agent status changed | agent=RouterService agent_id=809dfc053b044fb59ded6652d3037e40 old=initializing new=idle
+2026-05-21 11:42:10.102 | AUDIT    | src.core.logger:216 | trace_id=138bbd2d6486435e803b6383f0986e8b | Agent status changed | agent=RouterService agent_id=7e1a4e4953dc43f4a5f699b89beace60 old=initializing new=idle
+2026-05-21 11:46:23.210 | AUDIT    | src.core.logger:216 | trace_id=a9c9cfd37c2c438d95392b3d79c7af0a | Agent status changed | agent=RouterService agent_id=b68f0bedf39a48f99b6a58218776c99b old=initializing new=idle
+2026-05-21 11:57:36.394 | AUDIT    | src.core.logger:216 | trace_id=ebe7310b178240a1bbe4fe60ba3d49be | Agent status changed | agent=RouterService agent_id=9c5439ca97724a8592c1db9b50663da6 old=initializing new=idle
+2026-05-21 12:09:14.778 | AUDIT    | src.core.logger:216 | trace_id=cd66b65ca2c247bea0c3834904ac5e55 | Agent status changed | agent=RouterService agent_id=d564c335226f44609201a1213d421dd9 old=initializing new=idle

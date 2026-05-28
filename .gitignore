@@ -56,11 +56,9 @@ Thumbs.db
 # Local prototype files
 app-mobile/新建文件夹/
 
-
 /app-mobile/app-execution/node_modules/
 
 /app-mobile/app-execution/dist/
 
 # 忽略 app-mobile 目录下的 dist 文件夹
 /app-mobile/dist/
->>>>>>> origin/develop

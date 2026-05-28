@@ -1,0 +1,29 @@
+2026-05-21 10:42:13.985 | ERROR    | src.core.logger:201 | trace_id=b9c1cc5ad39a4f94aaabddb5db5583a0 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:42:40.251 | ERROR    | src.core.logger:201 | trace_id=e75fe68962e24f28a2d87f9a183bcf32 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:42:40.267 | ERROR    | src.core.logger:201 | trace_id=e75fe68962e24f28a2d87f9a183bcf32 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:42:40.272 | ERROR    | src.core.logger:201 | trace_id=e75fe68962e24f28a2d87f9a183bcf32 | chat_router 未预期异常: 'RouterSessionManager' object has no attribute '_redis_usable'
+2026-05-21 10:42:40.300 | ERROR    | src.core.logger:201 | trace_id=bd3c6dc7bdaf4f55a556694601ebe177 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:42:40.303 | ERROR    | src.core.logger:201 | trace_id=bd3c6dc7bdaf4f55a556694601ebe177 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:42:40.305 | ERROR    | src.core.logger:201 | trace_id=bd3c6dc7bdaf4f55a556694601ebe177 | chat_router 未预期异常: 'RouterSessionManager' object has no attribute '_redis_usable'
+2026-05-21 10:43:51.814 | ERROR    | src.core.logger:201 | trace_id=59d0b26abb19494db6ce7cca6fe44377 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:44:16.251 | ERROR    | src.core.logger:201 | trace_id=4046c7771e474ff2b2e941a1f15818b1 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:44:16.253 | ERROR    | src.core.logger:201 | trace_id=4046c7771e474ff2b2e941a1f15818b1 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:44:16.253 | ERROR    | src.core.logger:201 | trace_id=4046c7771e474ff2b2e941a1f15818b1 | chat_router 未预期异常: 'RouterSessionManager' object has no attribute '_redis_usable'
+2026-05-21 10:44:16.267 | ERROR    | src.core.logger:201 | trace_id=d5730116d1fe499ab73a225aaf03f664 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:44:16.272 | ERROR    | src.core.logger:201 | trace_id=d5730116d1fe499ab73a225aaf03f664 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:44:16.281 | ERROR    | src.core.logger:201 | trace_id=d5730116d1fe499ab73a225aaf03f664 | chat_router 未预期异常: 'RouterSessionManager' object has no attribute '_redis_usable'
+2026-05-21 10:45:25.137 | ERROR    | src.core.logger:201 | trace_id=745a28714b3c4a0596bb7882de29c2d7 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:47:49.324 | ERROR    | src.core.logger:201 | trace_id=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:47:49.324 | ERROR    | src.core.logger:201 | trace_id=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa | chat_router 未预期异常: 'RouterSessionManager' object has no attribute '_redis_usable'
+2026-05-21 10:48:24.999 | ERROR    | src.core.logger:201 | trace_id=ffeff9cf84304b04ba6eb9d27decd000 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:48:49.988 | ERROR    | src.core.logger:201 | trace_id=3719200a81764d1f9baa0610b941a074 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:48:49.988 | ERROR    | src.core.logger:201 | trace_id=3719200a81764d1f9baa0610b941a074 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:48:58.544 | ERROR    | src.core.logger:201 | trace_id=b964648944ee4bc486c3ed49a8732b11 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:48:58.553 | ERROR    | src.core.logger:201 | trace_id=b964648944ee4bc486c3ed49a8732b11 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:49:30.280 | ERROR    | src.core.logger:201 | trace_id=37b86aee9d944cc98d0a16ad777fe3eb | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:49:30.294 | ERROR    | src.core.logger:201 | trace_id=bf2721a76977457cb26db437e02015f4 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:49:30.295 | ERROR    | src.core.logger:201 | trace_id=bf2721a76977457cb26db437e02015f4 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:49:37.903 | ERROR    | src.core.logger:201 | trace_id=bf2721a76977457cb26db437e02015f4 | Fuse opened | name=llm:default threshold=3 failure_count=3
+2026-05-21 10:49:37.928 | ERROR    | src.core.logger:201 | trace_id=6755707b71fc4037900c1e1e9815b120 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:49:37.932 | ERROR    | src.core.logger:201 | trace_id=6755707b71fc4037900c1e1e9815b120 | JWT 验签已禁用，使用 JSON 解析 fallback（仅限开发/测试环境）
+2026-05-21 10:51:09.868 | ERROR    | src.core.logger:201 | trace_id=6b9c8cd76d94486baa154427218be2fd | Fuse opened | name=llm:default threshold=3 failure_count=3
