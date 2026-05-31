@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>食安大模型 - 数据库设计 Web Demo</title>
+<title>食安管理系统 - 数据库设计 Web Demo</title>
 <link href="https://cdn.bootcdn.net/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -136,9 +136,6 @@ tr:hover { background: #f8faff; }
 .tag-pending { background: #fff3e0; color: #f57c00; }
 .tag-processing { background: #e3f2fd; color: #1976d2; }
 .tag-completed { background: #e8f5e9; color: #388e3c; }
-.tag-true_violation { background: #ffeaea; color: #e74c3c; }
-.tag-false_alarm { background: #e8f5e9; color: #388e3c; }
-.tag-unknown { background: #f5f5f5; color: #999; }
 .tag-admin { background: #e3f2fd; color: #1565c0; }
 .tag-supervisor { background: #fff3e0; color: #e65100; }
 .tag-manager { background: #e8f5e9; color: #2e7d32; }
@@ -279,8 +276,7 @@ tr:hover { background: #f8faff; }
       <div class="logo"><i class="fas fa-shield-halved"></i> 食安数据库 Demo</div>
       <nav class="nav">
         <div class="nav-item active" onclick="switchPage('dashboard')"><i class="fas fa-chart-pie"></i> Dashboard</div>
-        <div class="nav-item" onclick="switchPage('alerts')"><i class="fas fa-exclamation-triangle"></i> 告警管理 <span class="badge" id="alert-badge">10</span></div>
-        <div class="nav-item" onclick="switchPage('events')"><i class="fas fa-list-check"></i> 违规事件</div>
+        <div class="nav-item" onclick="switchPage('violations')"><i class="fas fa-exclamation-triangle"></i> 违规记录 <span class="badge" id="violation-badge">10</span></div>
         <div class="nav-item" onclick="switchPage('tasks')"><i class="fas fa-clipboard-list"></i> 整改工单</div>
         <div class="nav-item" onclick="switchPage('stores')"><i class="fas fa-store"></i> 门店管理</div>
         <div class="nav-item" onclick="switchPage('sql')"><i class="fas fa-terminal"></i> SQL 查询</div>
@@ -308,45 +304,33 @@ tr:hover { background: #f8faff; }
         <div class="page-header"><h1><i class="fas fa-chart-pie"></i> Dashboard</h1></div>
         <div class="stats-grid" id="stats-grid"></div>
         <div class="two-col">
-          <div class="card"><div class="card-header"><i class="fas fa-store"></i> 各门店告警统计</div><div class="card-body" id="store-stats-chart"></div></div>
+          <div class="card"><div class="card-header"><i class="fas fa-store"></i> 各门店违规统计</div><div class="card-body" id="store-stats-chart"></div></div>
           <div class="card"><div class="card-header"><i class="fas fa-tag"></i> 违规类型分布</div><div class="card-body" id="type-stats-chart"></div></div>
         </div>
       </div>
 
-      <!-- 告警管理页面 -->
-      <div class="page" id="page-alerts" style="display:none">
-        <div class="page-header"><h1><i class="fas fa-exclamation-triangle"></i> 告警管理</h1><p id="alerts-scope-hint"></p></div>
+      <!-- 违规记录页面 -->
+      <div class="page" id="page-violations" style="display:none">
+        <div class="page-header"><h1><i class="fas fa-exclamation-triangle"></i> 违规记录</h1><p id="violations-scope-hint"></p></div>
         <div class="card">
           <div class="card-header"><i class="fas fa-search"></i> 搜索筛选</div>
           <div class="card-body">
             <div class="toolbar">
-              <input type="text" id="alert-search-store" placeholder="门店 ID..." oninput="loadAlerts()">
-              <select id="alert-search-level" onchange="loadAlerts()">
+              <input type="text" id="violation-search-store" placeholder="门店 ID..." oninput="loadViolations()">
+              <select id="violation-search-level" onchange="loadViolations()">
                 <option value="">全部级别</option>
-                <option value="critical">Critical</option>
-                <option value="high">High</option>
-                <option value="medium">Medium</option>
-                <option value="low">Low</option>
+                <option value="critical">严重</option>
+                <option value="high">高</option>
+                <option value="medium">中</option>
+                <option value="low">低</option>
               </select>
-              <button class="btn btn-primary" onclick="showCreateAlert()"><i class="fas fa-plus"></i> 新建告警</button>
+              <button class="btn btn-primary" onclick="showCreateViolation()"><i class="fas fa-plus"></i> 新建违规</button>
             </div>
           </div>
         </div>
         <div class="card">
-          <div class="card-header"><i class="fas fa-list"></i> 告警列表</div>
-          <div class="card-body" id="alert-table-container"></div>
-        </div>
-      </div>
-
-      <!-- 违规事件页面 -->
-      <div class="page" id="page-events" style="display:none">
-        <div class="page-header"><h1><i class="fas fa-list-check"></i> 违规事件</h1><p id="events-scope-hint"></p></div>
-        <div class="card">
-          <div class="card-header"><i class="fas fa-list"></i> 违规事件列表（VLM 校验后产出）</div>
-          <div class="card-body"><div class="toolbar">
-            <input type="text" id="event-search-store" placeholder="门店 ID..." oninput="loadEvents()">
-          </div>
-          <div id="event-table-container"></div></div>
+          <div class="card-header"><i class="fas fa-list"></i> 违规记录列表</div>
+          <div class="card-body" id="violation-table-container"></div>
         </div>
       </div>
 
@@ -409,13 +393,13 @@ tr:hover { background: #f8faff; }
           <div class="card-body" id="er-container"></div>
         </div>
         <div class="card">
-          <div class="card-header"><i class="fas fa-code"></i> 数据库DBA知识点</div>
+          <div class="card-header"><i class="fas fa-code"></i> 数据库设计知识点</div>
           <div class="card-body">
             <div class="two-col">
-              <div><h4 style="margin-bottom:8px">✅ 实体完整性</h4><div class="code-block">PRIMARY KEY (id / task_id / event_id)\nUNIQUE (user_id, event_id)</div></div>
-              <div><h4 style="margin-bottom:8px">✅ 参照完整性</h4><div class="code-block">FOREIGN KEY (store_id) REFERENCES stores(id)\nFOREIGN KEY (camera_id) REFERENCES cameras(id)</div></div>
+              <div><h4 style="margin-bottom:8px">✅ 实体完整性</h4><div class="code-block">PRIMARY KEY (id / task_id / user_id)\nUNIQUE (user_id, task_id)</div></div>
+              <div><h4 style="margin-bottom:8px">✅ 参照完整性</h4><div class="code-block">FOREIGN KEY (store_id) REFERENCES stores(id)\nFOREIGN KEY (violation_id) REFERENCES violations(id)</div></div>
               <div><h4 style="margin-bottom:8px">✅ 逻辑删除</h4><div class="code-block">is_deleted INTEGER NOT NULL DEFAULT 0\nUPDATE SET is_deleted=1 WHERE id=?</div></div>
-              <div><h4 style="margin-bottom:8px">✅ 数据库安全（只读账号）</h4><div class="code-block">SQLGuard 安全守卫 + 只读数据库账号\nSQL注入拦截 / 写操作拦截 / WHERE强制</div></div>
+              <div><h4 style="margin-bottom:8px">✅ 数据库安全</h4><div class="code-block">仅允许 SELECT 查询\n写操作拦截 / SQL注入防护</div></div>
             </div>
           </div>
         </div>
@@ -424,16 +408,15 @@ tr:hover { background: #f8faff; }
   </div>
 </div>
 
-<!-- 创建/编辑弹窗 -->
-<div class="modal-overlay" id="alert-modal">
+<!-- 创建违规弹窗 -->
+<div class="modal-overlay" id="violation-modal">
   <div class="modal">
-    <div class="modal-header"><span id="alert-modal-title">新建告警</span><span class="close-btn" onclick="closeModal('alert-modal')">&times;</span></div>
+    <div class="modal-header"><span id="violation-modal-title">新建违规记录</span><span class="close-btn" onclick="closeModal('violation-modal')">&times;</span></div>
     <div class="modal-body">
-      <div class="form-group"><label>门店 ID</label><input id="alert-form-store" placeholder="STORE001" value="STORE001"></div>
-      <div class="form-group"><label>摄像头 ID</label><input id="alert-form-camera" placeholder="CAM001" value="CAM001"></div>
-      <div class="form-group"><label>告警消息</label><input id="alert-form-message" placeholder="检测到: 未戴口罩"></div>
+      <div class="form-group"><label>门店 ID</label><input id="violation-form-store" placeholder="STORE001" value="STORE001"></div>
+      <div class="form-group"><label>违规描述</label><input id="violation-form-message" placeholder="检测到: 未戴口罩"></div>
       <div class="form-group"><label>违规类型</label>
-        <select id="alert-form-type">
+        <select id="violation-form-type">
           <option value="A01">A01-未戴口罩</option>
           <option value="A02">A02-未戴工帽</option>
           <option value="A03">A03-未穿工作服</option>
@@ -443,18 +426,18 @@ tr:hover { background: #f8faff; }
         </select>
       </div>
       <div class="form-group"><label>级别</label>
-        <select id="alert-form-level">
+        <select id="violation-form-level">
           <option value="low">低</option>
           <option value="medium" selected>中</option>
           <option value="high">高</option>
           <option value="critical">严重</option>
         </select>
       </div>
-      <div class="form-group"><label>置信度 (0-1)</label><input id="alert-form-confidence" type="number" step="0.01" min="0" max="1" value="0.85"></div>
+      <div class="form-group"><label>置信度 (0-1)</label><input id="violation-form-confidence" type="number" step="0.01" min="0" max="1" value="0.85"></div>
     </div>
     <div class="modal-footer">
-      <button class="btn" style="background:#eee" onclick="closeModal('alert-modal')">取消</button>
-      <button class="btn btn-primary" id="alert-modal-submit" onclick="submitAlert()">确认创建</button>
+      <button class="btn" style="background:#eee" onclick="closeModal('violation-modal')">取消</button>
+      <button class="btn btn-primary" id="violation-modal-submit" onclick="submitViolation()">确认创建</button>
     </div>
   </div>
 </div>
@@ -464,7 +447,7 @@ tr:hover { background: #f8faff; }
   <div class="modal">
     <div class="modal-header"><span>新建整改工单</span><span class="close-btn" onclick="closeModal('task-modal')">&times;</span></div>
     <div class="modal-body">
-      <div class="form-group"><label>关联告警 ID</label><input id="task-form-alert" placeholder="ALT001"></div>
+      <div class="form-group"><label>关联违规 ID</label><input id="task-form-violation" placeholder="VIO001"></div>
       <div class="form-group"><label>门店 ID</label><input id="task-form-store" placeholder="STORE001" value="STORE001"></div>
       <div class="form-group"><label>工单标题</label><input id="task-form-title" placeholder="xxx整改工单"></div>
       <div class="form-group"><label>负责人</label><input id="task-form-assignee" placeholder="王店长"></div>
@@ -486,21 +469,22 @@ const BASE = '/api/demo';
 
 // ===== 全局状态 =====
 let currentUser = null;
-let currentAlertPage = 1;
+let currentViolationPage = 1;
 
 // ===== 工具函数 =====
-function showToast(msg, type='success') {
+function showToast(msg, type) {
+  if (!type) type = 'success';
   const t = document.getElementById('toast');
-  t.innerHTML = `<div class="toast toast-${type}">${msg}</div>`;
-  setTimeout(() => t.innerHTML = '', 2500);
+  t.innerHTML = '<div class="toast toast-' + type + '">' + msg + '</div>';
+  setTimeout(function() { t.innerHTML = ''; }, 2500);
 }
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 function openModal(id) { document.getElementById(id).classList.add('show'); }
-function tag(text, cls) { return `<span class="tag tag-${cls}">${text}</span>`; }
+function tag(text, cls) { return '<span class="tag tag-' + cls + '">' + text + '</span>'; }
 
 function roleTag(role) {
-  const map = {enterprise_admin:'管理员', area_supervisor:'督导', store_manager:'店长', staff:'员工'};
-  const cls = {enterprise_admin:'admin', area_supervisor:'supervisor', store_manager:'manager', staff:'unknown'};
+  var map = {enterprise_admin:'管理员', area_supervisor:'督导', store_manager:'店长', staff:'员工'};
+  var cls = {enterprise_admin:'admin', area_supervisor:'supervisor', store_manager:'manager', staff:'unknown'};
   return tag(map[role]||role, cls[role]||'unknown');
 }
 
@@ -509,55 +493,50 @@ function getUserStoreIds() {
   return currentUser.store_ids || [];
 }
 
-// 获取有权限的 store 查询参数
 function getStoreQueryParam() {
   if (!currentUser || currentUser.role_type === 'enterprise_admin') return null;
-  const stores = getUserStoreIds();
+  var stores = getUserStoreIds();
   return stores.length === 1 ? stores[0] : null;
 }
 
 // ===== 登录/登出 =====
 async function doLogin() {
-  const userId = document.getElementById('login-user').value.trim();
-  const pass = document.getElementById('login-pass').value.trim();
+  var userId = document.getElementById('login-user').value.trim();
+  var pass = document.getElementById('login-pass').value.trim();
   if (!userId || !pass) { showToast('请输入账号和密码', 'error'); return; }
 
   try {
-    const r = await fetch(`${BASE}/login`, {
+    var r = await fetch(BASE + '/login', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({user_id: userId, password: pass})
     });
-    const j = await r.json();
+    var j = await r.json();
     if (j.code !== '0000') {
       showToast(j.message||'登录失败', 'error');
       return;
     }
     currentUser = j.data;
-    // 更新 UI
     document.getElementById('login-page').style.display = 'none';
     document.getElementById('app-container').style.display = 'block';
     document.getElementById('user-avatar').textContent = currentUser.user_name.charAt(0);
     document.getElementById('user-name').textContent = currentUser.user_name;
-    document.getElementById('user-role').innerHTML = ` ${roleTag(currentUser.role_type)} `;
-    const stores = getUserStoreIds();
+    document.getElementById('user-role').innerHTML = ' ' + roleTag(currentUser.role_type) + ' ';
+    var stores = getUserStoreIds();
     if (currentUser.role_type === 'enterprise_admin') {
-      document.getElementById('user-stores-info').textContent = `可查看全部 ${stores.length} 家门店`;
-      document.getElementById('alerts-scope-hint').innerHTML = `<span style="color:#388e3c">✅ 管理员视角：查看全部门店数据</span>`;
+      document.getElementById('user-stores-info').textContent = '可查看全部 ' + stores.length + ' 家门店';
+      document.getElementById('violations-scope-hint').innerHTML = '<span style="color:#388e3c">✅ 管理员视角：查看全部门店数据</span>';
     } else if (currentUser.role_type === 'area_supervisor') {
-      document.getElementById('user-stores-info').textContent = `管辖 ${stores.length} 家门店`;
-      document.getElementById('alerts-scope-hint').innerHTML = `<span style="color:#e65100">🔍 督导视角：仅显示管辖门店（${stores.join('/')}）</span>`;
+      document.getElementById('user-stores-info').textContent = '管辖 ' + stores.length + ' 家门店';
+      document.getElementById('violations-scope-hint').innerHTML = '<span style="color:#e65100">🔍 督导视角：仅显示管辖门店（' + stores.join('/') + '）</span>';
     } else if (currentUser.role_type === 'store_manager') {
-      document.getElementById('user-stores-info').textContent = `负责门店 ${stores[0]||'无'}`;
-      document.getElementById('alerts-scope-hint').innerHTML = `<span style="color:#2e7d32">📌 店长视角：仅显示本门店（${stores[0]||'无'}）数据</span>`;
+      document.getElementById('user-stores-info').textContent = '负责门店 ' + (stores[0]||'无');
+      document.getElementById('violations-scope-hint').innerHTML = '<span style="color:#2e7d32">📌 店长视角：仅显示本门店（' + (stores[0]||'无') + '）数据</span>';
     } else if (currentUser.role_type === 'staff') {
-      document.getElementById('user-stores-info').textContent = `所属门店 ${stores[0]||'无'}`;
-      document.getElementById('alerts-scope-hint').innerHTML = `<span style="color:#7b1fa2">👤 员工视角：仅查看本门店（${stores[0]||'无'}）数据，无管理操作权限</span>`;
-    } else {
-      document.getElementById('user-stores-info').textContent = `负责门店 ${stores[0]||'无'}`;
-      document.getElementById('alerts-scope-hint').innerHTML = `<span style="color:#2e7d32">📌 门店视角：仅显示本门店（${stores[0]||'无'}）数据</span>`;
+      document.getElementById('user-stores-info').textContent = '所属门店 ' + (stores[0]||'无');
+      document.getElementById('violations-scope-hint').innerHTML = '<span style="color:#7b1fa2">👤 员工视角：仅查看本门店（' + (stores[0]||'无') + '）数据，无管理操作权限</span>';
     }
-    showToast(`欢迎回来，${currentUser.user_name}`);
+    showToast('欢迎回来，' + currentUser.user_name);
     switchPage('dashboard');
   } catch(e) {
     showToast('网络错误', 'error');
@@ -566,7 +545,7 @@ async function doLogin() {
 
 function doLogout() {
   currentUser = null;
-  currentAlertPage = 1;
+  currentViolationPage = 1;
   document.getElementById('app-container').style.display = 'none';
   document.getElementById('login-page').style.display = 'flex';
   showToast('已退出登录');
@@ -574,13 +553,15 @@ function doLogout() {
 
 // ===== 页面切换 =====
 function switchPage(name) {
-  document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-  document.getElementById(`page-${name}`).style.display = 'block';
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.querySelector(`.nav-item[onclick*="'${name}'"]`)?.classList.add('active');
+  var pages = document.querySelectorAll('.page');
+  for (var i = 0; i < pages.length; i++) { pages[i].style.display = 'none'; }
+  document.getElementById('page-' + name).style.display = 'block';
+  var items = document.querySelectorAll('.nav-item');
+  for (var i = 0; i < items.length; i++) { items[i].classList.remove('active'); }
+  var active = document.querySelector('.nav-item[onclick*="' + name + '"]');
+  if (active) active.classList.add('active');
   if (name === 'dashboard') loadDashboard();
-  else if (name === 'alerts') { currentAlertPage = 1; loadAlerts(); }
-  else if (name === 'events') loadEvents();
+  else if (name === 'violations') { currentViolationPage = 1; loadViolations(); }
   else if (name === 'tasks') loadTasks();
   else if (name === 'stores') loadStores();
   else if (name === 'sql') loadSQL();
@@ -589,203 +570,117 @@ function switchPage(name) {
 
 // ===== Dashboard =====
 async function loadDashboard() {
-  const grid = document.getElementById('stats-grid');
-  const chart1 = document.getElementById('store-stats-chart');
-  const chart2 = document.getElementById('type-stats-chart');
+  var grid = document.getElementById('stats-grid');
+  var chart1 = document.getElementById('store-stats-chart');
+  var chart2 = document.getElementById('type-stats-chart');
   grid.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> 加载中...</div>';
 
   try {
-    const r = await fetch(`${BASE}/stats`);
-    const j = await r.json();
-    const d = j.data;
+    var r = await fetch(BASE + '/stats');
+    var j = await r.json();
+    var d = j.data;
 
-    grid.innerHTML = `
-      <div class="stat-card"><div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
-        <div class="stat-value">${d.total_alerts}</div><div class="stat-label">告警总数</div></div>
-      <div class="stat-card"><div class="stat-icon"><i class="fas fa-list-check"></i></div>
-        <div class="stat-value">${d.total_events}</div><div class="stat-label">违规事件</div></div>
-      <div class="stat-card"><div class="stat-icon"><i class="fas fa-clipboard"></i></div>
-        <div class="stat-value">${d.pending_tasks}</div><div class="stat-label">待处理工单</div></div>
-      <div class="stat-card"><div class="stat-icon"><i class="fas fa-biohazard"></i></div>
-        <div class="stat-value">${d.critical_alerts}</div><div class="stat-label">严重告警</div></div>
-    `;
+    grid.innerHTML = '<div class="stat-card"><div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div><div class="stat-value">' + d.total_violations + '</div><div class="stat-label">违规总数</div></div><div class="stat-card"><div class="stat-icon"><i class="fas fa-biohazard"></i></div><div class="stat-value">' + d.critical_violations + '</div><div class="stat-label">严重违规</div></div><div class="stat-card"><div class="stat-icon"><i class="fas fa-clipboard"></i></div><div class="stat-value">' + d.pending_tasks + '</div><div class="stat-label">待处理工单</div></div><div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-value">' + d.completed_tasks + '</div><div class="stat-label">已完成工单</div></div>';
 
-    chart1.innerHTML = d.store_stats.map(s =>
-      `<div style="margin-bottom:12px">
-        <div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px">
-          <span>${s.name}</span><span style="font-weight:600">${s.alert_count}</span>
-        </div>
-        <div style="background:#eee;border-radius:6px;height:20px;overflow:hidden">
-          <div style="background:linear-gradient(90deg,#4fc3f7,#1976d2);height:100%;width:${Math.min(100, s.alert_count * 25)}%;border-radius:6px"></div>
-        </div>
-      </div>`
-    ).join('');
+    chart1.innerHTML = d.store_stats.map(function(s) {
+      return '<div style="margin-bottom:12px"><div style="display:flex;justify-content:space-between;font-size:14px;margin-bottom:4px"><span>' + s.name + '</span><span style="font-weight:600">' + s.violation_count + '</span></div><div style="background:#eee;border-radius:6px;height:20px;overflow:hidden"><div style="background:linear-gradient(90deg,#4fc3f7,#1976d2);height:100%;width:' + Math.min(100, s.violation_count * 25) + '%;border-radius:6px"></div></div></div>';
+    }).join('');
 
-    chart2.innerHTML = d.type_stats.map(t =>
-      `<div style="margin-bottom:8px;display:flex;gap:12px;align-items:center">
-        <span class="tag tag-medium">${t.violation_type}</span>
-        <span style="font-weight:600">${t.count}</span>
-      </div>`
-    ).join('');
+    chart2.innerHTML = d.type_stats.map(function(t) {
+      return '<div style="margin-bottom:8px;display:flex;gap:12px;align-items:center"><span class="tag tag-medium">' + t.violation_type + '</span><span style="font-weight:600">' + t.count + '</span></div>';
+    }).join('');
   } catch(e) { grid.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>加载失败</p></div>'; }
 }
 
-// ===== 告警管理 =====
-async function loadAlerts() {
-  const store = document.getElementById('alert-search-store').value;
-  const level = document.getElementById('alert-search-level').value;
-  const container = document.getElementById('alert-table-container');
+// ===== 违规记录管理 =====
+async function loadViolations() {
+  var store = document.getElementById('violation-search-store').value;
+  var level = document.getElementById('violation-search-level').value;
+  var container = document.getElementById('violation-table-container');
   container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> 加载中...</div>';
 
   try {
-    let url = `${BASE}/alerts?page=${currentAlertPage}&page_size=10`;
-    // 角色权限过滤
-    const roleStore = getStoreQueryParam();
-    const effectiveStore = store || roleStore;
-    if (effectiveStore) url += `&store_id=${effectiveStore}`;
-    if (level) url += `&level=${level}`;
+    var url = BASE + '/violations?page=' + currentViolationPage + '&page_size=10';
+    var roleStore = getStoreQueryParam();
+    var effectiveStore = store || roleStore;
+    if (effectiveStore) url += '&store_id=' + effectiveStore;
+    if (level) url += '&level=' + level;
 
-    const r = await fetch(url);
-    const j = await r.json();
-    const rows = j.data;
+    var r = await fetch(url);
+    var j = await r.json();
+    var rows = j.data;
 
-    let html = '<table><thead><tr><th>ID</th><th>消息</th><th>门店</th><th>摄像头</th><th>级别</th><th>类型</th><th>置信度</th><th>状态</th><th>时间</th><th>操作</th></tr></thead><tbody>';
-    rows.forEach(a => {
-      html += `<tr>
-        <td style="font-family:monospace;font-size:12px">${a.id}</td>
-        <td>${a.message}</td>
-        <td>${a.store_name||a.store_id}</td>
-        <td>${a.camera_name||a.camera_id}</td>
-        <td>${tag(a.level, a.level)}</td>
-        <td>${a.violation_type}</td>
-        <td>${(a.confidence*100).toFixed(0)}%</td>
-        <td>${tag(a.rectification_status, a.rectification_status)}</td>
-        <td style="font-size:12px">${a.timestamp}</td>
-        <td><button class="btn btn-sm btn-danger" onclick="deleteAlert('${a.id}')">删除</button></td>
-      </tr>`;
-    });
+    var html = '<table><thead><tr><th>ID</th><th>描述</th><th>门店</th><th>级别</th><th>类型</th><th>置信度</th><th>状态</th><th>时间</th><th>操作</th></tr></thead><tbody>';
+    for (var i = 0; i < rows.length; i++) {
+      var a = rows[i];
+      html += '<tr><td style="font-family:monospace;font-size:12px">' + a.id + '</td><td>' + a.message + '</td><td>' + (a.store_name||a.store_id) + '</td><td>' + tag(a.level, a.level) + '</td><td>' + a.violation_type + '</td><td>' + (a.confidence*100).toFixed(0) + '%</td><td>' + tag(a.rectification_status, a.rectification_status) + '</td><td style="font-size:12px">' + a.timestamp + '</td><td><button class="btn btn-sm btn-danger" onclick="deleteViolation(\'' + a.id + '\')">删除</button></td></tr>';
+    }
     html += '</tbody></table>';
-    html += `<div class="pagination">
-      <button onclick="currentAlertPage--;loadAlerts()" ${currentAlertPage<=1?'disabled':''}>上一页</button>
-      <span class="page-info">第 ${j.page} / ${Math.ceil(j.total/j.page_size)} 页 (共${j.total}条)</span>
-      <button onclick="currentAlertPage++;loadAlerts()">下一页</button>
-    </div>`;
+    html += '<div class="pagination"><button onclick="currentViolationPage--;loadViolations()" ' + (currentViolationPage<=1?'disabled':'') + '>上一页</button><span class="page-info">第 ' + j.page + ' / ' + Math.ceil(j.total/j.page_size) + ' 页 (共' + j.total + '条)</span><button onclick="currentViolationPage++;loadViolations()">下一页</button></div>';
     container.innerHTML = html;
   } catch(e) { container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>加载失败</p></div>'; }
 }
 
-function showCreateAlert() {
-  document.getElementById('alert-modal-title').textContent = '新建告警';
-  document.getElementById('alert-form-store').value = 'STORE001';
-  document.getElementById('alert-form-camera').value = 'CAM001';
-  document.getElementById('alert-form-message').value = '';
-  document.getElementById('alert-modal-submit').textContent = '确认创建';
-  openModal('alert-modal');
+function showCreateViolation() {
+  document.getElementById('violation-modal-title').textContent = '新建违规记录';
+  document.getElementById('violation-form-store').value = 'STORE001';
+  document.getElementById('violation-form-message').value = '';
+  document.getElementById('violation-modal-submit').textContent = '确认创建';
+  openModal('violation-modal');
 }
 
-async function submitAlert() {
-  const data = {
-    store_id: document.getElementById('alert-form-store').value,
-    camera_id: document.getElementById('alert-form-camera').value,
-    message: document.getElementById('alert-form-message').value,
-    violation_type: document.getElementById('alert-form-type').value,
-    level: document.getElementById('alert-form-level').value,
-    confidence: parseFloat(document.getElementById('alert-form-confidence').value),
+async function submitViolation() {
+  var data = {
+    store_id: document.getElementById('violation-form-store').value,
+    message: document.getElementById('violation-form-message').value,
+    violation_type: document.getElementById('violation-form-type').value,
+    level: document.getElementById('violation-form-level').value,
+    confidence: parseFloat(document.getElementById('violation-form-confidence').value),
   };
   try {
-    const r = await fetch(`${BASE}/alerts`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
-    const j = await r.json();
-    if (j.code === '0000') { showToast('告警创建成功'); closeModal('alert-modal'); loadAlerts(); }
+    var r = await fetch(BASE + '/violations', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    var j = await r.json();
+    if (j.code === '0000') { showToast('违规记录创建成功'); closeModal('violation-modal'); loadViolations(); }
     else showToast(j.message||'创建失败', 'error');
   } catch(e) { showToast('网络错误', 'error'); }
 }
 
-async function deleteAlert(id) {
-  if (!confirm(`确认删除告警 ${id}？`)) return;
+async function deleteViolation(id) {
+  if (!confirm('确认删除违规记录 ' + id + '？')) return;
   try {
-    const r = await fetch(`${BASE}/alerts/${id}`, { method: 'DELETE' });
-    const j = await r.json();
-    if (j.code === '0000') { showToast('删除成功'); loadAlerts(); }
+    var r = await fetch(BASE + '/violations/' + id, { method: 'DELETE' });
+    var j = await r.json();
+    if (j.code === '0000') { showToast('删除成功'); loadViolations(); }
     else showToast(j.message||'删除失败', 'error');
   } catch(e) { showToast('网络错误', 'error'); }
 }
 
-// ===== 违规事件 =====
-async function loadEvents() {
-  const store = document.getElementById('event-search-store').value;
-  const container = document.getElementById('event-table-container');
-  container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> 加载中...</div>';
-
-  try {
-    let url = `${BASE}/events`;
-    const roleStore = getStoreQueryParam();
-    const effectiveStore = store || roleStore;
-    if (effectiveStore) url += `?store_id=${effectiveStore}`;
-
-    const r = await fetch(url);
-    const j = await r.json();
-    const rows = j.data;
-
-    let html = '<table><thead><tr><th>事件ID</th><th>告警ID</th><th>门店</th><th>告警消息</th><th>确认违规</th><th>严重级别</th><th>验证方式</th><th>验证时间</th></tr></thead><tbody>';
-    rows.forEach(e => {
-      html += `<tr>
-        <td style="font-family:monospace;font-size:12px">${e.event_id}</td>
-        <td style="font-family:monospace;font-size:12px">${e.alert_id}</td>
-        <td>${e.store_name||e.store_id}</td>
-        <td>${e.alert_message||'-'}</td>
-        <td>${e.is_violation_confirmed ? tag('已确认','true_violation') : tag('未确认','unknown')}</td>
-        <td>${tag(e.severity_level, e.severity_level==='critical'?'critical':'medium')}</td>
-        <td>${e.verification_method}</td>
-        <td style="font-size:12px">${e.verified_at}</td>
-      </tr>`;
-    });
-    html += '</tbody></table>';
-    if (!rows.length) html = '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无违规事件</p></div>';
-    container.innerHTML = html;
-  } catch(e) { container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>加载失败</p></div>'; }
-}
-
 // ===== 整改工单 =====
 async function loadTasks() {
-  const store = document.getElementById('task-search-store').value;
-  const status = document.getElementById('task-search-status').value;
-  const container = document.getElementById('task-table-container');
+  var store = document.getElementById('task-search-store').value;
+  var status = document.getElementById('task-search-status').value;
+  var container = document.getElementById('task-table-container');
   container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> 加载中...</div>';
 
   try {
-    let url = `${BASE}/tasks`;
-    const params = [];
-    const roleStore = getStoreQueryParam();
-    const effectiveStore = store || roleStore;
-    if (effectiveStore) params.push(`store_id=${effectiveStore}`);
-    if (status) params.push(`status=${status}`);
+    var url = BASE + '/tasks';
+    var params = [];
+    var roleStore = getStoreQueryParam();
+    var effectiveStore = store || roleStore;
+    if (effectiveStore) params.push('store_id=' + effectiveStore);
+    if (status) params.push('status=' + status);
     if (params.length) url += '?' + params.join('&');
 
-    const r = await fetch(url);
-    const j = await r.json();
-    const rows = j.data;
+    var r = await fetch(url);
+    var j = await r.json();
+    var rows = j.data;
 
-    let html = '<table><thead><tr><th>任务ID</th><th>标题</th><th>门店</th><th>负责人</th><th>状态</th><th>创建人</th><th>截止日期</th><th>操作</th></tr></thead><tbody>';
-    rows.forEach(t => {
-      const statusMap = {pending:'待处理', processing:'处理中', completed:'已完成'};
-      html += `<tr>
-        <td style="font-family:monospace;font-size:12px">${t.task_id}</td>
-        <td>${t.title}</td>
-        <td>${t.store_name||t.store_id}</td>
-        <td>${t.assignee||'-'}</td>
-        <td>${tag(statusMap[t.status]||t.status, t.status)}</td>
-        <td>${t.created_by}</td>
-        <td style="font-size:12px">${t.deadline||'-'}</td>
-        <td>
-          <select onchange="updateTaskStatus('${t.task_id}', this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid #ddd;font-size:12px">
-            <option value="">更新状态</option>
-            <option value="pending">待处理</option>
-            <option value="processing">处理中</option>
-            <option value="completed">已完成</option>
-          </select>
-        </td>
-      </tr>`;
-    });
+    var html = '<table><thead><tr><th>任务ID</th><th>标题</th><th>门店</th><th>负责人</th><th>状态</th><th>创建人</th><th>截止日期</th><th>操作</th></tr></thead><tbody>';
+    for (var i = 0; i < rows.length; i++) {
+      var t = rows[i];
+      var statusMap = {pending:'待处理', processing:'处理中', completed:'已完成'};
+      html += '<tr><td style="font-family:monospace;font-size:12px">' + t.task_id + '</td><td>' + t.title + '</td><td>' + (t.store_name||t.store_id) + '</td><td>' + (t.assignee||'-') + '</td><td>' + tag(statusMap[t.status]||t.status, t.status) + '</td><td>' + t.created_by + '</td><td style="font-size:12px">' + (t.deadline||'-') + '</td><td><select onchange="updateTaskStatus(\'' + t.task_id + '\', this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid #ddd;font-size:12px"><option value="">更新状态</option><option value="pending">待处理</option><option value="processing">处理中</option><option value="completed">已完成</option></select></td></tr>';
+    }
     html += '</tbody></table>';
     if (!rows.length) html = '<div class="empty-state"><i class="fas fa-inbox"></i><p>暂无工单</p></div>';
     container.innerHTML = html;
@@ -793,7 +688,7 @@ async function loadTasks() {
 }
 
 function showCreateTask() {
-  document.getElementById('task-form-alert').value = '';
+  document.getElementById('task-form-violation').value = '';
   document.getElementById('task-form-store').value = 'STORE001';
   document.getElementById('task-form-title').value = '';
   document.getElementById('task-form-assignee').value = '';
@@ -802,8 +697,8 @@ function showCreateTask() {
 }
 
 async function submitTask() {
-  const data = {
-    alert_id: document.getElementById('task-form-alert').value,
+  var data = {
+    violation_id: document.getElementById('task-form-violation').value,
     store_id: document.getElementById('task-form-store').value,
     title: document.getElementById('task-form-title').value,
     assignee: document.getElementById('task-form-assignee').value,
@@ -811,8 +706,8 @@ async function submitTask() {
     created_by: 'admin',
   };
   try {
-    const r = await fetch(`${BASE}/tasks`, { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
-    const j = await r.json();
+    var r = await fetch(BASE + '/tasks', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(data) });
+    var j = await r.json();
     if (j.code === '0000') { showToast('工单创建成功'); closeModal('task-modal'); loadTasks(); }
     else showToast(j.message||'创建失败', 'error');
   } catch(e) { showToast('网络错误', 'error'); }
@@ -821,8 +716,8 @@ async function submitTask() {
 async function updateTaskStatus(taskId, status) {
   if (!status) return;
   try {
-    const r = await fetch(`${BASE}/tasks/${taskId}/status?status=${status}`, { method: 'PUT' });
-    const j = await r.json();
+    var r = await fetch(BASE + '/tasks/' + taskId + '/status?status=' + status, { method: 'PUT' });
+    var j = await r.json();
     if (j.code === '0000') { showToast('状态更新成功'); loadTasks(); }
     else showToast(j.message||'更新失败', 'error');
   } catch(e) { showToast('网络错误', 'error'); }
@@ -830,16 +725,17 @@ async function updateTaskStatus(taskId, status) {
 
 // ===== 门店管理 =====
 async function loadStores() {
-  const container = document.getElementById('store-table-container');
+  var container = document.getElementById('store-table-container');
   container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> 加载中...</div>';
   try {
-    const r = await fetch(`${BASE}/stores`);
-    const j = await r.json();
-    const rows = j.data;
-    let html = '<table><thead><tr><th>ID</th><th>名称</th><th>地址</th><th>联系电话</th><th>区域</th></tr></thead><tbody>';
-    rows.forEach(s => {
-      html += `<tr><td style="font-family:monospace">${s.id}</td><td><strong>${s.name}</strong></td><td>${s.address||'-'}</td><td>${s.contact_phone||'-'}</td><td>${tag(s.region_id,'medium')}</td></tr>`;
-    });
+    var r = await fetch(BASE + '/stores');
+    var j = await r.json();
+    var rows = j.data;
+    var html = '<table><thead><tr><th>ID</th><th>名称</th><th>地址</th><th>联系电话</th><th>区域</th></tr></thead><tbody>';
+    for (var i = 0; i < rows.length; i++) {
+      var s = rows[i];
+      html += '<tr><td style="font-family:monospace">' + s.id + '</td><td><strong>' + s.name + '</strong></td><td>' + (s.address||'-') + '</td><td>' + (s.contact_phone||'-') + '</td><td>' + tag(s.region_id,'medium') + '</td></tr>';
+    }
     html += '</tbody></table>';
     container.innerHTML = html;
   } catch(e) { container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>加载失败</p></div>'; }
@@ -847,47 +743,62 @@ async function loadStores() {
 
 // ===== E-R 图 =====
 async function loadER() {
-  const container = document.getElementById('er-container');
+  var container = document.getElementById('er-container');
   container.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> 加载中...</div>';
   try {
-    const r = await fetch(`${BASE}/er-info`);
-    const j = await r.json();
-    const tables = j.data.tables;
-    const layout = [['stores', 'cameras'],['alerts'],['violation_events', 'users', 'rectification_tasks']];
+    var r = await fetch(BASE + '/er-info');
+    var j = await r.json();
+    var tables = j.data.tables;
+    var layout = [['stores'], ['violations'], ['users', 'tasks']];
 
-    container.innerHTML = layout.map(row =>
-      `<div style="display:flex;justify-content:center;gap:30px;flex-wrap:wrap;margin:8px 0;align-items:center">${row.map(t => {
-        const info = tables.find(x => x.name === t);
+    container.innerHTML = layout.map(function(row) {
+      return '<div style="display:flex;justify-content:center;gap:30px;flex-wrap:wrap;margin:8px 0;align-items:center">' + row.map(function(t) {
+        var info = null;
+        for (var k = 0; k < tables.length; k++) {
+          if (tables[k].name === t) { info = tables[k]; break; }
+        }
         if (!info) return '';
-        return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px">
-          <div class="er-table"><div class="er-header">${info.comment}</div>${info.columns.map(c => {
-            let cls = 'er-col';
-            if (c.includes('(PK)')) cls += ' pk';
-            if (c.includes('(FK')) cls += ' fk';
-            return `<div class="${cls}">${c}</div>`;
-          }).join('')}</div>
-          ${info.relations.map(r => `<div style="font-size:11px;color:#666">${r.type} → ${r.target}</div>`).join('')}</div>`;
-      }).join('')}${row.length > 0 ? '<div style="color:#1976d2;font-weight:bold;font-size:16px;padding:0 8px">│</div>' : ''}</div>`
-    ).join('<div style="text-align:center;color:#1976d2;font-weight:bold;font-size:20px;margin:4px 0">⬇ ⬇ ⬇</div>');
+        var tableHtml = '<div style="display:flex;flex-direction:column;align-items:center;gap:4px"><div class="er-table"><div class="er-header">' + info.comment + '</div>';
+        for (var c = 0; c < info.columns.length; c++) {
+          var col = info.columns[c];
+          var cls = 'er-col';
+          if (col.indexOf('(PK)') >= 0) cls += ' pk';
+          if (col.indexOf('(FK') >= 0) cls += ' fk';
+          tableHtml += '<div class="' + cls + '">' + col + '</div>';
+        }
+        tableHtml += '</div>';
+        for (var r2 = 0; r2 < info.relations.length; r2++) {
+          tableHtml += '<div style="font-size:11px;color:#666">' + info.relations[r2].type + ' → ' + info.relations[r2].target + '</div>';
+        }
+        tableHtml += '</div>';
+        return tableHtml;
+      }).join('') + '</div>';
+    }).join('<div style="text-align:center;color:#1976d2;font-weight:bold;font-size:20px;margin:4px 0">⬇ ⬇ ⬇</div>');
   } catch(e) { container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>加载失败</p></div>'; }
 }
 
 // ===== SQL 查询 =====
 async function loadSQL() {
   try {
-    const r = await fetch(`${BASE}/demo-sql/presets`);
-    const j = await r.json();
-    const presets = j.data;
-    const container = document.getElementById('preset-buttons');
-    container.innerHTML = presets.map(p =>
-      `<button class="btn btn-sm btn-primary" data-sql="${encodeURIComponent(p.sql)}" title="${p.desc}"><i class="fas fa-database"></i> ${p.title}</button>`
-    ).join('');
-    container.querySelectorAll('button[data-sql]').forEach(btn => {
-      btn.onclick = function() {
-        document.getElementById('sql-editor').value = decodeURIComponent(this.dataset.sql);
-        runSQL();
-      };
-    });
+    var r = await fetch(BASE + '/demo-sql/presets');
+    var j = await r.json();
+    var presets = j.data;
+    var container = document.getElementById('preset-buttons');
+    container.innerHTML = '';
+    for (var i = 0; i < presets.length; i++) {
+      var p = presets[i];
+      var btn = document.createElement('button');
+      btn.className = 'btn btn-sm btn-primary';
+      btn.innerHTML = '<i class="fas fa-database"></i> ' + p.title;
+      btn.title = p.desc;
+      btn.onclick = function(sql) {
+        return function() {
+          document.getElementById('sql-editor').value = sql;
+          runSQL();
+        };
+      }(p.sql);
+      container.appendChild(btn);
+    }
   } catch(e) { console.error('加载预设失败', e); }
 }
 
@@ -898,51 +809,54 @@ function clearSQL() {
 }
 
 async function runSQL() {
-  const editor = document.getElementById('sql-editor');
-  const resultDiv = document.getElementById('sql-result');
-  const countSpan = document.getElementById('sql-result-count');
-  const sql = editor.value.trim();
+  var editor = document.getElementById('sql-editor');
+  var resultDiv = document.getElementById('sql-result');
+  var countSpan = document.getElementById('sql-result-count');
+  var sql = editor.value.trim();
   if (!sql) { showToast('请输入 SQL 语句', 'error'); return; }
 
   resultDiv.innerHTML = '<div class="loading"><i class="fas fa-spinner"></i> 执行中...</div>';
   countSpan.textContent = '';
 
   try {
-    const r = await fetch(`${BASE}/sql`, {
+    var r = await fetch(BASE + '/sql', {
       method: 'POST', headers: {'Content-Type': 'application/json'},
       body: JSON.stringify({sql: sql})
     });
-    const j = await r.json();
+    var j = await r.json();
     if (j.code !== '0000') {
-      resultDiv.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>${j.message}</p></div>`;
+      resultDiv.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>' + j.message + '</p></div>';
       return;
     }
-    const { columns, rows, count } = j.data;
-    countSpan.textContent = `共 ${count} 条记录`;
-    let html = '<table><thead><tr>';
-    columns.forEach(c => { html += `<th>${c}</th>`; });
+    var columns = j.data.columns;
+    var rows = j.data.rows;
+    var count = j.data.count;
+    countSpan.textContent = '共 ' + count + ' 条记录';
+    var html = '<table><thead><tr>';
+    for (var i = 0; i < columns.length; i++) { html += '<th>' + columns[i] + '</th>'; }
     html += '</tr></thead><tbody>';
-    rows.forEach(row => {
+    for (var i = 0; i < rows.length; i++) {
       html += '<tr>';
-      columns.forEach(c => {
-        let val = row[c]; if (val === null || val === undefined) val = '-';
-        html += `<td>${val}</td>`;
-      });
+      for (var j2 = 0; j2 < columns.length; j2++) {
+        var val = rows[i][columns[j2]];
+        if (val === null || val === undefined) val = '-';
+        html += '<td>' + val + '</td>';
+      }
       html += '</tr>';
-    });
+    }
     html += '</tbody></table>';
     if (count === 0) html = '<div class="empty-state"><i class="fas fa-inbox"></i><p>查询结果为空</p></div>';
     resultDiv.innerHTML = html;
   } catch(e) {
-    resultDiv.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>网络错误: ${e.message}</p></div>`;
+    resultDiv.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>网络错误: ' + e.message + '</p></div>';
     showToast('SQL 执行失败', 'error');
   }
 }
 
 // ===== 键盘快捷操作 =====
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-  document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('login-user').addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
+  document.getElementById('login-pass').addEventListener('keydown', function(e) { if (e.key === 'Enter') doLogin(); });
 });
 </script>
 </body>
