@@ -115,6 +115,21 @@ def init_db():
     """)
 
     # ========================
+    # 表6：审计日志表
+    # ========================
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS audit_logs (
+            id              INTEGER     PRIMARY KEY AUTOINCREMENT,
+            user_id         VARCHAR(32) NOT NULL,
+            action          VARCHAR(32) NOT NULL,
+            target_table    VARCHAR(64) NOT NULL,
+            target_id       VARCHAR(64) DEFAULT NULL,
+            detail          TEXT        DEFAULT NULL,
+            created_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # ========================
     # 种子数据
     # ========================
     cursor.execute("SELECT COUNT(*) FROM stores")

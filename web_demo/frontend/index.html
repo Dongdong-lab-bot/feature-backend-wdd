@@ -202,6 +202,11 @@ tr:hover { background: #f8faff; }
       <div class="page" id="page-sql" style="display:none">
         <div class="page-header"><h1><i class="fas fa-terminal"></i> SQL 查询面板</h1></div>
         <div class="card"><div class="card-header"><i class="fas fa-lightbulb"></i> 预设演示</div><div class="card-body"><div class="toolbar" id="preset-buttons"></div></div></div>
+        <div class="card"><div class="card-header"><i class="fas fa-robot"></i> AI 自然语言查询 (NL→SQL)</div>
+          <div class="card-body">
+            <div style="display:flex;gap:12px"><input id="nl-input" placeholder="输入自然语言问题，如：查出所有严重违规记录" style="flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px" onkeydown="if(event.key==='Enter')runNLSQL()"><button class="btn btn-primary" onclick="runNLSQL()"><i class="fas fa-magic"></i> AI 查询</button></div>
+            <div id="nl-sql-display" style="margin-top:8px;padding:8px 12px;background:#f5f5f5;border-radius:6px;font-family:monospace;font-size:12px;color:#666;display:none"></div>
+          </div></div>
         <div class="card"><div class="card-header"><i class="fas fa-pen"></i> 自定义 SQL</div>
           <div class="card-body"><textarea id="sql-editor" placeholder="SELECT * FROM violations" style="width:100%;min-height:100px;padding:12px;border:1px solid #ddd;border-radius:8px;font-family:monospace;font-size:14px;resize:vertical"></textarea>
             <div style="margin-top:12px;display:flex;gap:12px"><button class="btn btn-primary" onclick="runSQL()"><i class="fas fa-play"></i> 执行</button><button class="btn" style="background:#eee" onclick="clearSQL()"><i class="fas fa-eraser"></i> 清空</button></div></div></div>
@@ -602,6 +607,27 @@ async function runSQL(){
   rows.forEach(row=>{ html+='<tr>'; columns.forEach(c=>{ html+=`<td>${row[c]??'-'}</td>`; }); html+='</tr>'; });
   html+='</tbody></table>';
   document.getElementById('sql-result').innerHTML=count===0?'<div class="empty-state"><p>无结果</p></div>':html;
+}
+async function runNLSQL(){
+  const q=document.getElementById('nl-input').value.trim();
+  if(!q){ showToast('请输入问题','error');return; }
+  const disp=document.getElementById('nl-sql-display');
+  disp.style.display='';
+  disp.textContent='AI 思考中...';
+  document.getElementById('sql-result').innerHTML='<div class="loading"><i class="fas fa-spinner"></i></div>';
+  try {
+    const r=await fetch(`${BASE}/nl-sql`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:q})});
+    const j=await r.json();
+    if(j.code!=='0000'){ disp.textContent='错误: '+j.message; document.getElementById('sql-result').innerHTML=`<div class="empty-state"><p>${j.message}</p></div>`;return; }
+    disp.textContent='SQL: '+j.data.generated_sql;
+    document.getElementById('sql-editor').value=j.data.generated_sql;
+    const {columns,rows,count}=j.data;
+    document.getElementById('sql-result-count').textContent=`共 ${count} 条`;
+    let html='<table><thead><tr>'; columns.forEach(c=>{ html+=`<th>${c}</th>`; }); html+='</tr></thead><tbody>';
+    rows.forEach(row=>{ html+='<tr>'; columns.forEach(c=>{ html+=`<td>${row[c]??'-'}</td>`; }); html+='</tr>'; });
+    html+='</tbody></table>';
+    document.getElementById('sql-result').innerHTML=count===0?'<div class="empty-state"><p>无结果</p></div>':html;
+  } catch(e){ disp.textContent='网络错误'; document.getElementById('sql-result').innerHTML=`<div class="empty-state"><p>${e.message}</p></div>`; }
 }
 function clearSQL(){ document.getElementById('sql-editor').value=''; document.getElementById('sql-result').innerHTML='<div class="empty-state"><p>输入 SQL 并执行</p></div>'; }
 

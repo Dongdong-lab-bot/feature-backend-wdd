@@ -24,6 +24,38 @@ from web_demo.backend.db_init import get_connection
 
 router = APIRouter(prefix="/api/demo", tags=["web-demo"])
 
+# ==================== 审计日志 ====================
+
+def _audit_log(action: str, target_table: str, target_id: str = None, detail: str = None):
+    """记录审计日志"""
+    if not _current_user:
+        return
+    try:
+        conn = get_connection()
+        conn.execute(
+            "INSERT INTO audit_logs (user_id, action, target_table, target_id, detail) VALUES (?,?,?,?,?)",
+            (_current_user["user_id"], action, target_table, target_id, detail))
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass  # 审计失败不影响主流程
+
+# ==================== 触发器行为 ====================
+
+def _auto_notify(to_user: str, content: str):
+    """审核/申诉处理时自动发送通知消息"""
+    if not _current_user:
+        return
+    try:
+        conn = get_connection()
+        conn.execute(
+            "INSERT INTO messages (from_user, to_user, content) VALUES (?,?,?)",
+            (_current_user["user_id"], to_user, content))
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
+
 # ==================== 模拟用户会话 ====================
 _LOGIN_USERS = {
     "admin01": {"password": "123456", "user_id": "admin01", "role_type": "enterprise_admin"},
@@ -397,11 +429,20 @@ async def review_violation(violation_id: str, action: ReviewAction):
     if action.review_status not in ("approved", "rejected"):
         return {"code": "4000", "message": "审核状态只能为 approved 或 rejected"}
     conn = get_connection()
+    row = conn.execute("SELECT store_id, message FROM violations WHERE id=?", (violation_id,)).fetchone()
+    store_id = row["store_id"] if row else None
+    message = row["message"] if row else ""
     conn.execute(
         "UPDATE violations SET review_status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
         (action.review_status, violation_id))
     conn.commit()
+    # 触发器：审核后通知相关门店店长（在 conn 关闭前查询）
+    if store_id:
+        store_users = conn.execute("SELECT user_id FROM users WHERE store_ids LIKE ? AND is_deleted=0", (f'%{store_id}%',)).fetchall()
+        for u in store_users:
+            _auto_notify(u["user_id"], f"违规记录 {violation_id} 审核结果: {action.review_status} - {message}")
     conn.close()
+    _audit_log(action.review_status, "violations", violation_id, f"审核{violation_id}: {action.review_status}")
     return {"code": "0000", "message": f"审核完成: {action.review_status}"}
 
 
@@ -422,6 +463,8 @@ async def appeal_violation(violation_id: str, req: AppealRequest):
         (req.appeal_reason, violation_id))
     conn.commit()
     conn.close()
+    _audit_log("appeal", "violations", violation_id, f"申诉: {req.appeal_reason}")
+    _auto_notify("admin01", f"员工 {_current_user['user_id']} 对 {violation_id} 提起申诉: {req.appeal_reason}")
     return {"code": "0000", "message": "申诉已提交"}
 
 
@@ -442,6 +485,8 @@ async def resolve_appeal(violation_id: str, action: AppealResolve):
         (action.appeal_status, violation_id))
     conn.commit()
     conn.close()
+    _audit_log("appeal_resolve", "violations", violation_id, f"申诉处理: {action.appeal_status}")
+    _auto_notify("emp001", f"管理员已处理你对 {violation_id} 的申诉: {action.appeal_status}")
     return {"code": "0000", "message": f"申诉已处理: {action.appeal_status}"}
 
 
@@ -674,6 +719,84 @@ async def execute_sql(query: SQLQuery):
         return {"code": "0000", "data": {"columns": columns, "rows": data, "count": len(data)}}
     except Exception as e:
         return {"code": "5000", "message": f"SQL 执行错误: {str(e)}", "data": None}
+
+
+# ==================== NL → SQL（AI 自然语言转 SQL）====================
+
+class NLQuery(BaseModel):
+    question: str
+
+
+@router.post("/nl-sql")
+async def nl_to_sql(query: NLQuery):
+    """自然语言转 SQL 查询（接入 AI Text-to-SQL 管道）"""
+    try:
+        from src.agents.data_agent.sql_generator import generate_sql_with_retry, build_alert_table_schema
+        from src.core.llm_client import AsyncLLMClient
+
+        # 构建当前数据库 schema 描述
+        schema_text = """
+## 门店表 (stores)
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | VARCHAR | 门店ID (PK) |
+| name | VARCHAR | 门店名称 |
+| address | VARCHAR | 地址 |
+| contact_phone | VARCHAR | 联系电话 |
+| region_id | VARCHAR | 区域ID |
+
+## 违规记录表 (violations)
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | VARCHAR | 违规ID (PK) |
+| store_id | VARCHAR | 门店ID (FK) |
+| message | VARCHAR | 违规详情 |
+| violation_type | VARCHAR | 违规类型 (A00-A05) |
+| level | VARCHAR | 等级 (low/medium/high/critical) |
+| confidence | FLOAT | 置信度 |
+| review_status | VARCHAR | 审核状态 (pending/approved/rejected) |
+| appeal_status | VARCHAR | 申诉状态 (none/pending/resolved/rejected) |
+| rectification_status | VARCHAR | 整改状态 |
+| timestamp | DATETIME | 创建时间 |
+
+## 整改工单表 (rectification_tasks)
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| task_id | VARCHAR | 工单ID (PK) |
+| violation_id | VARCHAR | 关联违规ID (FK) |
+| store_id | VARCHAR | 门店ID (FK) |
+| title | VARCHAR | 工单标题 |
+| assignee | VARCHAR | 负责人 |
+| status | VARCHAR | 状态 (pending/processing/completed) |
+| created_by | VARCHAR | 创建人 |
+| deadline | DATETIME | 截止日期 |
+"""
+
+        result = await generate_sql_with_retry(
+            user_query=query.question,
+            schema_context=schema_text,
+            trace_id="web-demo"
+        )
+
+        # 执行生成的 SQL
+        conn = get_connection()
+        cursor = conn.execute(result.generated_sql)
+        rows = cursor.fetchall()
+        columns = [desc[0] for desc in cursor.description]
+        data = [dict(zip(columns, row)) for row in rows]
+        conn.close()
+
+        return {
+            "code": "0000",
+            "data": {
+                "generated_sql": result.generated_sql,
+                "columns": columns,
+                "rows": data,
+                "count": len(data)
+            }
+        }
+    except Exception as e:
+        return {"code": "5000", "message": f"AI 生成 SQL 失败: {str(e)}", "data": None}
 
 
 # ==================== 预设 SQL ====================
