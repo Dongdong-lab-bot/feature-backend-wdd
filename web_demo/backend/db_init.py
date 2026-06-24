@@ -1,15 +1,16 @@
 """
 数据库初始化脚本（SQLite）
-5张表
+表结构：
 - stores（门店表）
-- users（用户表）
-- user_store（用户门店关联表）
-- violations（违规记录表）
-- tasks（整改工单表）
+- users（用户表，含 store_ids JSON 字段）
+- violations（违规记录表，合并原 alerts + violation_events）
+- rectification_tasks（整改工单表）
+- messages（消息表）
 """
 
 import sqlite3
 import os
+import json
 
 DB_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "safefood.db")
 
@@ -40,7 +41,7 @@ def init_db():
     """)
 
     # ========================
-    # 表2：用户表（移除 store_ids）
+    # 表2：用户表（含 store_ids JSON 字段）
     # ========================
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
@@ -49,71 +50,67 @@ def init_db():
             user_name       VARCHAR(64) NOT NULL,
             role_type       VARCHAR(32) NOT NULL,
             phone           VARCHAR(16) DEFAULT NULL,
+            store_ids       TEXT         DEFAULT '[]',
             is_deleted      INTEGER     NOT NULL DEFAULT 0
         )
     """)
 
     # ========================
-    # 表3：用户门店关联表（多对多）
-    # ========================
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS user_store (
-            id              INTEGER     PRIMARY KEY AUTOINCREMENT,
-            user_id         VARCHAR(32) NOT NULL,
-            store_id        VARCHAR(32) NOT NULL,
-            is_deleted      INTEGER     NOT NULL DEFAULT 0,
-            FOREIGN KEY (user_id)  REFERENCES users(user_id) ON DELETE RESTRICT,
-            FOREIGN KEY (store_id) REFERENCES stores(id)     ON DELETE RESTRICT,
-            UNIQUE(user_id, store_id)
-        )
-    """)
-
-    # ========================
-    # 表4：违规记录表（4个外键）
+    # 表3：违规记录表（合并 alerts + violation_events）
     # ========================
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS violations (
             id                  VARCHAR(32)     PRIMARY KEY,
-            user_id             VARCHAR(32)     DEFAULT NULL,
             store_id            VARCHAR(32)     NOT NULL,
-            reporter_id         VARCHAR(32)     NOT NULL,
-            auditor_id          VARCHAR(32)     DEFAULT NULL,
             message             VARCHAR(512)    NOT NULL,
             violation_type      VARCHAR(3)      NOT NULL DEFAULT 'A00',
-            level               VARCHAR(16)     NOT NULL,
-            confidence          REAL            NOT NULL,
-            status              VARCHAR(16)     NOT NULL DEFAULT 'pending',
-            verify_result       VARCHAR(16)     DEFAULT 'unknown',
+            level               VARCHAR(16)     NOT NULL DEFAULT 'medium',
+            confidence          REAL            NOT NULL DEFAULT 0.8,
+            review_status       VARCHAR(16)     NOT NULL DEFAULT 'pending',
+            appeal_status       VARCHAR(16)     NOT NULL DEFAULT 'none',
+            appeal_reason       TEXT            DEFAULT NULL,
+            rectification_status VARCHAR(16)    DEFAULT 'pending',
             timestamp           DATETIME        NOT NULL,
-            created_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at          DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
             is_deleted          INTEGER         NOT NULL DEFAULT 0,
-            FOREIGN KEY (user_id)     REFERENCES users(user_id) ON DELETE RESTRICT,
-            FOREIGN KEY (store_id)    REFERENCES stores(id)     ON DELETE RESTRICT,
-            FOREIGN KEY (reporter_id) REFERENCES users(user_id) ON DELETE RESTRICT,
-            FOREIGN KEY (auditor_id)  REFERENCES users(user_id) ON DELETE RESTRICT
+            FOREIGN KEY (store_id) REFERENCES stores(id)
         )
     """)
 
     # ========================
-    # 表5：整改工单表（3个外键）
-    # 无 store_id / description，有 create_time
+    # 表4：整改工单表
     # ========================
     cursor.execute("""
-        CREATE TABLE IF NOT EXISTS tasks (
+        CREATE TABLE IF NOT EXISTS rectification_tasks (
             id              INTEGER     PRIMARY KEY AUTOINCREMENT,
             task_id         VARCHAR(32) NOT NULL UNIQUE,
-            violation_id    VARCHAR(32) NOT NULL UNIQUE,
+            violation_id    VARCHAR(32) NOT NULL,
+            store_id        VARCHAR(32) NOT NULL,
             title           VARCHAR(256) NOT NULL,
-            issuer_id       VARCHAR(32) NOT NULL,
-            assignee_id     VARCHAR(32) DEFAULT NULL,
+            assignee        VARCHAR(64)  DEFAULT NULL,
             status          VARCHAR(16) NOT NULL DEFAULT 'pending',
-            create_time     DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            created_by      VARCHAR(32) DEFAULT 'admin',
             deadline        DATETIME    DEFAULT NULL,
+            created_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
             is_deleted      INTEGER     NOT NULL DEFAULT 0,
-            FOREIGN KEY (violation_id) REFERENCES violations(id) ON DELETE RESTRICT,
-            FOREIGN KEY (issuer_id)    REFERENCES users(user_id) ON DELETE RESTRICT,
-            FOREIGN KEY (assignee_id)  REFERENCES users(user_id) ON DELETE RESTRICT
+            FOREIGN KEY (violation_id) REFERENCES violations(id),
+            FOREIGN KEY (store_id) REFERENCES stores(id)
+        )
+    """)
+
+    # ========================
+    # 表5：消息表
+    # ========================
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS messages (
+            id              INTEGER     PRIMARY KEY AUTOINCREMENT,
+            from_user       VARCHAR(32) NOT NULL,
+            to_user         VARCHAR(32) NOT NULL,
+            content         TEXT        NOT NULL,
+            is_read         INTEGER     NOT NULL DEFAULT 0,
+            created_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (from_user) REFERENCES users(user_id),
+            FOREIGN KEY (to_user)   REFERENCES users(user_id)
         )
     """)
 
@@ -132,59 +129,61 @@ def init_db():
              ("STORE005","上海陆家嘴店","上海市浦东新区陆家嘴","13800005555","REGION_SH",0)]
         )
 
-        # ----- users（5条，移除 store_ids）-----
+        # ----- users（5条，含 store_ids JSON）-----
         cursor.executemany(
-            "INSERT INTO users (user_id,user_name,role_type,phone,is_deleted) VALUES (?,?,?,?,?)",
-            [("admin01","张总","enterprise_admin","13900000001",0),
-             ("super01","李督导","area_supervisor","13900000002",0),
-             ("mgr001","王店长","store_manager","13900000003",0),
-             ("mgr002","赵店长","store_manager","13900000004",0),
-             ("emp001","小李","staff","13900000005",0)]
+            "INSERT INTO users (user_id,user_name,role_type,phone,store_ids,is_deleted) VALUES (?,?,?,?,?,?)",
+            [("admin01","张总","enterprise_admin","13900000001",
+              json.dumps(["STORE001","STORE002","STORE003","STORE004","STORE005"]),0),
+             ("super01","李督导","area_supervisor","13900000002",
+              json.dumps(["STORE001","STORE002"]),0),
+             ("mgr001","王店长","store_manager","13900000003",
+              json.dumps(["STORE001"]),0),
+             ("mgr002","赵店长","store_manager","13900000004",
+              json.dumps(["STORE002"]),0),
+             ("emp001","小李","staff","13900000005",
+              json.dumps(["STORE001"]),0)]
         )
 
-        # ----- user_store（从原 store_ids 解构）-----
-        cursor.executemany(
-            "INSERT INTO user_store (user_id,store_id,is_deleted) VALUES (?,?,?)",
-            [("admin01","STORE001",0), ("admin01","STORE002",0),
-             ("admin01","STORE003",0), ("admin01","STORE004",0),
-             ("admin01","STORE005",0),
-             ("super01","STORE001",0), ("super01","STORE002",0),
-             ("mgr001","STORE001",0),
-             ("mgr002","STORE002",0),
-             ("emp001","STORE001",0)]
-        )
-
-        # ----- violations（5条，合并原 alerts + violation_events）-----
+        # ----- violations（5条）-----
         cursor.executemany(
             """INSERT INTO violations
-               (id,user_id,store_id,reporter_id,auditor_id,message,
-                violation_type,level,confidence,status,verify_result,timestamp,is_deleted)
-               VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)""",
-            [("ALT001","emp001","STORE001","admin01","admin01",
-              "检测到: 未戴口罩","A01","high",0.95,"verified","true_violation",
-              "2026-05-20 08:30:00",0),
-             ("ALT002","emp001","STORE001","admin01","admin01",
-              "检测到: 未戴口罩","A01","high",0.88,"verified","true_violation",
-              "2026-05-21 09:15:00",0),
-             ("ALT003","emp001","STORE001","admin01","admin01",
-              "检测到: 未穿工作服","A03","medium",0.76,"verified","true_violation",
-              "2026-05-21 10:00:00",0),
-             ("ALT005",None,"STORE003","admin01","admin01",
-              "检测到: 抽烟","A05","high",0.91,"verified","true_violation",
-              "2026-05-21 11:00:00",0),
-             ("ALT007",None,"STORE002","admin01","admin01",
-              "检测到: 鼠患","A04","critical",0.97,"verified","true_violation",
-              "2026-05-21 12:00:00",0)]
+               (id,store_id,message,violation_type,level,confidence,
+                review_status,appeal_status,rectification_status,timestamp,is_deleted)
+               VALUES (?,?,?,?,?,?,?,?,?,?,?)""",
+            [("VIO001","STORE001","检测到: 未戴口罩","A01","high",0.95,
+              "approved","none","verified","2026-05-20 08:30:00",0),
+             ("VIO002","STORE001","检测到: 未戴口罩","A01","high",0.88,
+              "approved","none","verified","2026-05-21 09:15:00",0),
+             ("VIO003","STORE001","检测到: 未穿工作服","A03","medium",0.76,
+              "pending","none","verified","2026-05-21 10:00:00",0),
+             ("VIO004","STORE003","检测到: 抽烟","A05","high",0.91,
+              "pending","none","verified","2026-05-21 11:00:00",0),
+             ("VIO005","STORE002","检测到: 鼠患","A04","critical",0.97,
+              "pending","none","verified","2026-05-21 12:00:00",0)]
         )
 
-        # ----- tasks（5条，violation_id 替换原 alert_id/event_id）-----
+        # ----- rectification_tasks（5条）-----
         cursor.executemany(
-            "INSERT INTO tasks (task_id,violation_id,title,issuer_id,assignee_id,status,deadline,is_deleted) VALUES (?,?,?,?,?,?,?,?)",
-            [("TSK001","ALT001","南山店-未戴口罩整改","admin01","mgr001","completed","2026-05-25",0),
-             ("TSK002","ALT002","南山店-再次未戴口罩整改","admin01","mgr001","processing","2026-05-28",0),
-             ("TSK003","ALT003","南山店-未穿工作服整改","super01","mgr001","pending","2026-05-28",0),
-             ("TSK004","ALT005","天河店-抽烟整改","admin01","mgr002","pending","2026-05-26",0),
-             ("TSK005","ALT007","福田店-鼠患整改","admin01","mgr002","pending","2026-05-24",0)]
+            """INSERT INTO rectification_tasks
+               (task_id,violation_id,store_id,title,assignee,status,created_by,deadline,created_at,is_deleted)
+               VALUES (?,?,?,?,?,?,?,?,?,?)""",
+            [("TSK001","VIO001","STORE001","南山店-未戴口罩整改","王店长","completed","admin01",
+              "2026-05-25","2026-05-20 08:35:00",0),
+             ("TSK002","VIO002","STORE001","南山店-再次未戴口罩整改","王店长","processing","admin01",
+              "2026-05-28","2026-05-21 09:20:00",0),
+             ("TSK003","VIO003","STORE001","南山店-未穿工作服整改","王店长","pending","super01",
+              "2026-05-28","2026-05-21 10:05:00",0),
+             ("TSK004","VIO004","STORE003","天河店-抽烟整改","赵店长","pending","admin01",
+              "2026-05-26","2026-05-21 11:05:00",0),
+             ("TSK005","VIO005","STORE002","福田店-鼠患整改","赵店长","pending","admin01",
+              "2026-05-24","2026-05-21 12:05:00",0)]
+        )
+
+        # ----- messages（2条）-----
+        cursor.executemany(
+            "INSERT INTO messages (from_user,to_user,content,is_read,created_at) VALUES (?,?,?,?,?)",
+            [("admin01","mgr001","请尽快处理南山店未戴口罩的整改工单",0,"2026-05-21 10:00:00"),
+             ("admin01","mgr002","福田店鼠患问题严重，请优先处理",0,"2026-05-21 12:10:00")]
         )
 
         conn.commit()

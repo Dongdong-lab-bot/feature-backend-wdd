@@ -1,6 +1,10 @@
 """
 Web Demo CRUD API
-提供告警、门店、违规事件、整改工单的增删改查接口
+权限体系：
+- 员工(staff): 仅申诉 + 消息
+- 店长(store_manager): 违规记录/工单CRUD + 消息(不能改申诉状态)
+- 管理员(enterprise_admin): 审核 + 门店/用户CRUD + 申诉状态 + 消息
+- 督导(area_supervisor): 等同店长
 """
 
 from __future__ import annotations
@@ -12,7 +16,7 @@ import string
 from datetime import datetime
 from typing import Any, Optional
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Header
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
@@ -20,15 +24,56 @@ from web_demo.backend.db_init import get_connection
 
 router = APIRouter(prefix="/api/demo", tags=["web-demo"])
 
-# ==================== 模拟用户会话（仅 Demo 用）====================
-# 简化：密码统一为 "123456"
+# ==================== 模拟用户会话 ====================
 _LOGIN_USERS = {
-    "admin01": {"password": "123456", "user_id": "admin01"},
-    "super01": {"password": "123456", "user_id": "super01"},
-    "mgr001":  {"password": "123456", "user_id": "mgr001"},
-    "mgr002":  {"password": "123456", "user_id": "mgr002"},
-    "emp001":  {"password": "123456", "user_id": "emp001"},
+    "admin01": {"password": "123456", "user_id": "admin01", "role_type": "enterprise_admin"},
+    "super01": {"password": "123456", "user_id": "super01", "role_type": "area_supervisor"},
+    "mgr001":  {"password": "123456", "user_id": "mgr001",  "role_type": "store_manager"},
+    "mgr002":  {"password": "123456", "user_id": "mgr002",  "role_type": "store_manager"},
+    "emp001":  {"password": "123456", "user_id": "emp001",  "role_type": "staff"},
 }
+
+# 当前登录用户（简化为全局，Demo 用）
+_current_user: Optional[dict] = None
+
+
+def _permission_denied(msg: str = "权限不足"):
+    return JSONResponse({"code": "4003", "message": msg, "data": None}, status_code=403)
+
+
+def _require_role(*roles: str):
+    """检查当前用户角色"""
+    if not _current_user:
+        return _permission_denied("请先登录")
+    if _current_user["role_type"] not in roles:
+        return _permission_denied()
+    return None
+
+
+def _is_admin():
+    return _current_user and _current_user["role_type"] == "enterprise_admin"
+
+
+def _is_manager_or_above():
+    return _current_user and _current_user["role_type"] in ("enterprise_admin", "area_supervisor", "store_manager")
+
+
+def _user_store_ids():
+    if not _current_user:
+        return []
+    return json.loads(_current_user.get("store_ids", "[]"))
+
+
+def _store_filter_clause(alias: str = "v"):
+    """门店过滤：管理员看全部，其他人只看自己的门店"""
+    if _is_admin():
+        return "", []
+    stores = _user_store_ids()
+    if not stores:
+        return f" AND 1=0", []
+    placeholders = ",".join(["?"] * len(stores))
+    return f" AND {alias}.store_id IN ({placeholders})", stores
+
 
 class LoginRequest(BaseModel):
     user_id: str
@@ -36,7 +81,7 @@ class LoginRequest(BaseModel):
 
 @router.post("/login")
 async def login(req: LoginRequest):
-    """模拟登录，返回用户信息"""
+    global _current_user
     user = _LOGIN_USERS.get(req.user_id)
     if not user or user["password"] != req.password:
         return {"code": "4001", "message": "用户ID或密码错误", "data": None}
@@ -48,23 +93,20 @@ async def login(req: LoginRequest):
     conn.close()
     if not row:
         return {"code": "4001", "message": "用户不存在", "data": None}
-    return {"code": "0000", "data": dict(row)}
+    _current_user = dict(row)
+    return {"code": "0000", "data": _current_user}
 
-@router.get("/user/{user_id}")
-async def get_user(user_id: str):
-    """获取用户信息"""
-    conn = get_connection()
-    row = conn.execute(
-        "SELECT user_id, user_name, role_type, phone, store_ids FROM users WHERE user_id=? AND is_deleted=0",
-        (user_id,)
-    ).fetchone()
-    conn.close()
-    if not row:
-        return {"code": "4001", "message": "用户不存在", "data": None}
-    user = dict(row)
-    import json
-    user["store_ids"] = json.loads(user["store_ids"])
-    return {"code": "0000", "data": user}
+@router.post("/logout")
+async def logout():
+    global _current_user
+    _current_user = None
+    return {"code": "0000", "message": "已退出"}
+
+@router.get("/me")
+async def get_me():
+    if not _current_user:
+        return {"code": "4001", "message": "未登录", "data": None}
+    return {"code": "0000", "data": _current_user}
 
 
 def _generate_id(prefix: str) -> str:
@@ -87,41 +129,180 @@ async def list_stores():
     return {"code": "0000", "data": [_dict_from_row(r) for r in rows]}
 
 
-# ==================== 告警 API (CRUD 完整演示) ====================
+class StoreCreate(BaseModel):
+    id: str
+    name: str
+    address: Optional[str] = None
+    contact_phone: Optional[str] = None
+    region_id: Optional[str] = None
 
-@router.get("/alerts")
-async def list_alerts(
+
+@router.post("/stores")
+async def create_store(store: StoreCreate):
+    perm = _require_role("enterprise_admin")
+    if perm: return perm
+    conn = get_connection()
+    try:
+        conn.execute(
+            "INSERT INTO stores (id,name,address,contact_phone,region_id) VALUES (?,?,?,?,?)",
+            (store.id, store.name, store.address, store.contact_phone, store.region_id)
+        )
+        conn.commit()
+        return {"code": "0000", "message": "门店创建成功"}
+    except Exception as e:
+        return {"code": "5000", "message": str(e)}
+    finally:
+        conn.close()
+
+
+@router.put("/stores/{store_id}")
+async def update_store(store_id: str, data: dict):
+    perm = _require_role("enterprise_admin")
+    if perm: return perm
+    conn = get_connection()
+    fields = []
+    params = []
+    for k in ("name", "address", "contact_phone", "region_id"):
+        if k in data:
+            fields.append(f"{k}=?")
+            params.append(data[k])
+    if not fields:
+        return {"code": "4000", "message": "没有要更新的字段"}
+    params.append(store_id)
+    conn.execute(f"UPDATE stores SET {','.join(fields)} WHERE id=?", params)
+    conn.commit()
+    conn.close()
+    return {"code": "0000", "message": "门店更新成功"}
+
+
+@router.delete("/stores/{store_id}")
+async def delete_store(store_id: str):
+    perm = _require_role("enterprise_admin")
+    if perm: return perm
+    conn = get_connection()
+    conn.execute("UPDATE stores SET is_deleted=1 WHERE id=?", (store_id,))
+    conn.commit()
+    conn.close()
+    return {"code": "0000", "message": "门店已删除（逻辑删除）"}
+
+
+# ==================== 用户管理（仅管理员）====================
+
+@router.get("/users")
+async def list_users():
+    perm = _require_role("enterprise_admin")
+    if perm: return perm
+    conn = get_connection()
+    rows = conn.execute("SELECT user_id, user_name, role_type, phone, store_ids FROM users WHERE is_deleted=0 ORDER BY user_id").fetchall()
+    conn.close()
+    return {"code": "0000", "data": [_dict_from_row(r) for r in rows]}
+
+
+class UserCreate(BaseModel):
+    user_id: str
+    user_name: str
+    role_type: str
+    phone: Optional[str] = None
+    store_ids: Optional[list] = []
+
+
+@router.post("/users")
+async def create_user(u: UserCreate):
+    perm = _require_role("enterprise_admin")
+    if perm: return perm
+    conn = get_connection()
+    try:
+        conn.execute(
+            "INSERT INTO users (user_id,user_name,role_type,phone,store_ids) VALUES (?,?,?,?,?)",
+            (u.user_id, u.user_name, u.role_type, u.phone, json.dumps(u.store_ids or []))
+        )
+        conn.commit()
+        return {"code": "0000", "message": "用户创建成功"}
+    except Exception as e:
+        return {"code": "5000", "message": str(e)}
+    finally:
+        conn.close()
+
+
+@router.put("/users/{user_id}")
+async def update_user(user_id: str, data: dict):
+    perm = _require_role("enterprise_admin")
+    if perm: return perm
+    conn = get_connection()
+    fields = []
+    params = []
+    for k in ("user_name", "role_type", "phone"):
+        if k in data:
+            fields.append(f"{k}=?")
+            params.append(data[k])
+    if "store_ids" in data:
+        fields.append("store_ids=?")
+        params.append(json.dumps(data["store_ids"]))
+    if not fields:
+        return {"code": "4000", "message": "没有要更新的字段"}
+    params.append(user_id)
+    conn.execute(f"UPDATE users SET {','.join(fields)} WHERE user_id=?", params)
+    conn.commit()
+    conn.close()
+    return {"code": "0000", "message": "用户更新成功"}
+
+
+@router.delete("/users/{user_id}")
+async def delete_user(user_id: str):
+    perm = _require_role("enterprise_admin")
+    if perm: return perm
+    if user_id == "admin01":
+        return {"code": "4000", "message": "不能删除主管理员"}
+    conn = get_connection()
+    conn.execute("UPDATE users SET is_deleted=1 WHERE user_id=?", (user_id,))
+    conn.commit()
+    conn.close()
+    return {"code": "0000", "message": "用户已删除"}
+
+
+# ==================== 违规记录 API ====================
+
+@router.get("/violations")
+async def list_violations(
     store_id: Optional[str] = None,
     level: Optional[str] = None,
     violation_type: Optional[str] = None,
+    review_status: Optional[str] = None,
     page: int = Query(1, ge=1),
     page_size: int = Query(10, ge=1, le=100),
 ):
+    if not _current_user:
+        return _permission_denied("请先登录")
     conn = get_connection()
-    where = ["a.is_deleted=0"]
+    where = ["v.is_deleted=0"]
     params = []
+
+    store_clause, store_params = _store_filter_clause("v")
+    where.append(store_clause.lstrip(" AND "))
+    params.extend(store_params)
+
     if store_id:
-        where.append("a.store_id=?")
+        where.append("v.store_id=?")
         params.append(store_id)
     if level:
-        where.append("a.level=?")
+        where.append("v.level=?")
         params.append(level)
     if violation_type:
-        where.append("a.violation_type=?")
+        where.append("v.violation_type=?")
         params.append(violation_type)
+    if review_status:
+        where.append("v.review_status=?")
+        params.append(review_status)
 
-    # 查总数
-    count_sql = f"SELECT COUNT(*) FROM alerts a WHERE {' AND '.join(where)}"
+    count_sql = f"SELECT COUNT(*) FROM violations v WHERE {' AND '.join(where)}"
     total = conn.execute(count_sql, params).fetchone()[0]
 
-    # 查列表（联表 camera + store 取名称）
     sql = f"""
-        SELECT a.*, c.name as camera_name, s.name as store_name
-        FROM alerts a
-        LEFT JOIN cameras c ON a.camera_id = c.id
-        LEFT JOIN stores s ON a.store_id = s.id
+        SELECT v.*, s.name as store_name
+        FROM violations v
+        LEFT JOIN stores s ON v.store_id = s.id
         WHERE {' AND '.join(where)}
-        ORDER BY a.timestamp DESC
+        ORDER BY v.timestamp DESC
         LIMIT ? OFFSET ?
     """
     rows = conn.execute(sql, params + [page_size, (page - 1) * page_size]).fetchall()
@@ -136,25 +317,7 @@ async def list_alerts(
     }
 
 
-@router.get("/alerts/{alert_id}")
-async def get_alert(alert_id: str):
-    conn = get_connection()
-    row = conn.execute(
-        """SELECT a.*, c.name as camera_name, s.name as store_name
-           FROM alerts a
-           LEFT JOIN cameras c ON a.camera_id = c.id
-           LEFT JOIN stores s ON a.store_id = s.id
-           WHERE a.id=? AND a.is_deleted=0""",
-        (alert_id,)
-    ).fetchone()
-    conn.close()
-    if not row:
-        raise HTTPException(404, "告警不存在")
-    return {"code": "0000", "data": _dict_from_row(row)}
-
-
-class AlertCreate(BaseModel):
-    camera_id: str
+class ViolationCreate(BaseModel):
     store_id: str
     message: str
     violation_type: str = "A00"
@@ -163,102 +326,139 @@ class AlertCreate(BaseModel):
     timestamp: Optional[str] = None
 
 
-@router.post("/alerts")
-async def create_alert(alert: AlertCreate):
-    alert_id = _generate_id("ALT")
-    trace_id = _generate_id("TRC")
-    ts = alert.timestamp or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
+@router.post("/violations")
+async def create_violation(v: ViolationCreate):
+    perm = _require_role("enterprise_admin", "area_supervisor", "store_manager")
+    if perm: return perm
+    violation_id = _generate_id("VIO")
+    ts = v.timestamp or datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     conn = get_connection()
     conn.execute(
-        """INSERT INTO alerts (id,trace_id,camera_id,store_id,message,violation_type,level,confidence,timestamp)
-           VALUES (?,?,?,?,?,?,?,?,?)""",
-        (alert_id, trace_id, alert.camera_id, alert.store_id, alert.message,
-         alert.violation_type, alert.level, alert.confidence, ts)
-    )
+        """INSERT INTO violations (id,store_id,message,violation_type,level,confidence,timestamp)
+           VALUES (?,?,?,?,?,?,?)""",
+        (violation_id, v.store_id, v.message, v.violation_type, v.level, v.confidence, ts))
     conn.commit()
     conn.close()
-    return {"code": "0000", "message": "告警创建成功", "data": {"id": alert_id}}
+    return {"code": "0000", "message": "违规记录创建成功", "data": {"id": violation_id}}
 
 
-class AlertUpdate(BaseModel):
+class ViolationUpdate(BaseModel):
+    message: Optional[str] = None
     level: Optional[str] = None
+    violation_type: Optional[str] = None
+    confidence: Optional[float] = None
     rectification_status: Optional[str] = None
-    verify_result: Optional[str] = None
-    is_verified: Optional[int] = None
 
 
-@router.put("/alerts/{alert_id}")
-async def update_alert(alert_id: str, update: AlertUpdate):
+@router.put("/violations/{violation_id}")
+async def update_violation(violation_id: str, update: ViolationUpdate):
+    perm = _require_role("enterprise_admin", "area_supervisor", "store_manager")
+    if perm: return perm
     fields = []
     params = []
-    if update.level is not None:
-        fields.append("level=?")
-        params.append(update.level)
-    if update.rectification_status is not None:
-        fields.append("rectification_status=?")
-        params.append(update.rectification_status)
-    if update.verify_result is not None:
-        fields.append("verify_result=?")
-        params.append(update.verify_result)
-    if update.is_verified is not None:
-        fields.append("is_verified=?")
-        params.append(update.is_verified)
-
+    for k in ("message", "level", "violation_type", "confidence", "rectification_status"):
+        val = getattr(update, k, None)
+        if val is not None:
+            fields.append(f"{k}=?")
+            params.append(val)
     if not fields:
-        raise HTTPException(400, "没有要更新的字段")
-
+        return {"code": "4000", "message": "没有要更新的字段"}
     fields.append("updated_at=CURRENT_TIMESTAMP")
-    params.append(alert_id)
-
+    params.append(violation_id)
     conn = get_connection()
-    conn.execute(f"UPDATE alerts SET {','.join(fields)} WHERE id=?", params)
+    conn.execute(f"UPDATE violations SET {','.join(fields)} WHERE id=?", params)
     conn.commit()
     conn.close()
-    return {"code": "0000", "message": "告警更新成功"}
+    return {"code": "0000", "message": "违规记录更新成功"}
 
 
-@router.delete("/alerts/{alert_id}")
-async def delete_alert(alert_id: str):
-    """逻辑删除（演示逻辑删除而非物理 DELETE）"""
+@router.delete("/violations/{violation_id}")
+async def delete_violation(violation_id: str):
+    perm = _require_role("enterprise_admin", "area_supervisor", "store_manager")
+    if perm: return perm
     conn = get_connection()
-    conn.execute("UPDATE alerts SET is_deleted=1 WHERE id=?", (alert_id,))
+    conn.execute("UPDATE violations SET is_deleted=1 WHERE id=?", (violation_id,))
     conn.commit()
     conn.close()
-    return {"code": "0000", "message": "告警已删除（逻辑删除）"}
+    return {"code": "0000", "message": "违规记录已删除"}
 
 
-# ==================== 违规事件 API ====================
+# ==================== 审核（仅管理员）====================
 
-@router.get("/events")
-async def list_events(store_id: Optional[str] = None):
+class ReviewAction(BaseModel):
+    review_status: str  # approved / rejected
+    remark: Optional[str] = None
+
+
+@router.put("/violations/{violation_id}/review")
+async def review_violation(violation_id: str, action: ReviewAction):
+    perm = _require_role("enterprise_admin")
+    if perm: return perm
+    if action.review_status not in ("approved", "rejected"):
+        return {"code": "4000", "message": "审核状态只能为 approved 或 rejected"}
     conn = get_connection()
-    where = ["v.is_deleted=0"]
-    params = []
-    if store_id:
-        where.append("v.store_id=?")
-        params.append(store_id)
-
-    rows = conn.execute(
-        f"""SELECT v.*, a.message as alert_message, s.name as store_name
-            FROM violation_events v
-            LEFT JOIN alerts a ON v.alert_id = a.id
-            LEFT JOIN stores s ON v.store_id = s.id
-            WHERE {' AND '.join(where)}
-            ORDER BY v.timestamp DESC""",
-        params
-    ).fetchall()
+    conn.execute(
+        "UPDATE violations SET review_status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
+        (action.review_status, violation_id))
+    conn.commit()
     conn.close()
-    return {"code": "0000", "data": [_dict_from_row(r) for r in rows]}
+    return {"code": "0000", "message": f"审核完成: {action.review_status}"}
+
+
+# ==================== 申诉 ====================
+
+class AppealRequest(BaseModel):
+    appeal_reason: str
+
+
+@router.put("/violations/{violation_id}/appeal")
+async def appeal_violation(violation_id: str, req: AppealRequest):
+    """员工提起申诉（仅 staff）"""
+    perm = _require_role("staff")
+    if perm: return perm
+    conn = get_connection()
+    conn.execute(
+        "UPDATE violations SET appeal_status='pending', appeal_reason=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
+        (req.appeal_reason, violation_id))
+    conn.commit()
+    conn.close()
+    return {"code": "0000", "message": "申诉已提交"}
+
+
+class AppealResolve(BaseModel):
+    appeal_status: str  # resolved / rejected
+
+
+@router.put("/violations/{violation_id}/appeal/resolve")
+async def resolve_appeal(violation_id: str, action: AppealResolve):
+    """管理员处理申诉"""
+    perm = _require_role("enterprise_admin")
+    if perm: return perm
+    if action.appeal_status not in ("resolved", "rejected"):
+        return {"code": "4000", "message": "申诉处理状态只能为 resolved 或 rejected"}
+    conn = get_connection()
+    conn.execute(
+        "UPDATE violations SET appeal_status=?, updated_at=CURRENT_TIMESTAMP WHERE id=?",
+        (action.appeal_status, violation_id))
+    conn.commit()
+    conn.close()
+    return {"code": "0000", "message": f"申诉已处理: {action.appeal_status}"}
 
 
 # ==================== 整改工单 API ====================
 
 @router.get("/tasks")
 async def list_tasks(store_id: Optional[str] = None, status: Optional[str] = None):
+    if not _current_user:
+        return _permission_denied("请先登录")
     conn = get_connection()
     where = ["t.is_deleted=0"]
     params = []
+
+    store_clause, store_params = _store_filter_clause("t")
+    where.append(store_clause.lstrip(" AND "))
+    params.extend(store_params)
+
     if store_id:
         where.append("t.store_id=?")
         params.append(store_id)
@@ -267,35 +467,58 @@ async def list_tasks(store_id: Optional[str] = None, status: Optional[str] = Non
         params.append(status)
 
     rows = conn.execute(
-        f"""SELECT t.*, s.name as store_name
+        f"""SELECT t.*, s.name as store_name, v.message as violation_message
             FROM rectification_tasks t
             LEFT JOIN stores s ON t.store_id = s.id
+            LEFT JOIN violations v ON t.violation_id = v.id
             WHERE {' AND '.join(where)}
             ORDER BY t.created_at DESC""",
-        params
-    ).fetchall()
+        params).fetchall()
     conn.close()
     return {"code": "0000", "data": [_dict_from_row(r) for r in rows]}
 
 
 @router.post("/tasks")
 async def create_task(task: dict):
+    perm = _require_role("enterprise_admin", "area_supervisor", "store_manager")
+    if perm: return perm
     task_id = _generate_id("TSK")
     conn = get_connection()
     conn.execute(
-        """INSERT INTO rectification_tasks (task_id,alert_id,store_id,title,assignee,status,created_by,deadline)
+        """INSERT INTO rectification_tasks (task_id,violation_id,store_id,title,assignee,status,created_by,deadline)
            VALUES (?,?,?,?,?,?,?,?)""",
-        (task_id, task.get("alert_id"), task["store_id"], task["title"],
-         task.get("assignee"), "pending", task.get("created_by", "admin"),
-         task.get("deadline"))
-    )
+        (task_id, task.get("violation_id"), task["store_id"], task["title"],
+         task.get("assignee"), "pending", task.get("created_by", _current_user["user_id"]),
+         task.get("deadline")))
     conn.commit()
     conn.close()
     return {"code": "0000", "message": "工单创建成功", "data": {"task_id": task_id}}
 
 
+@router.put("/tasks/{task_id}")
+async def update_task(task_id: str, task: dict):
+    perm = _require_role("enterprise_admin", "area_supervisor", "store_manager")
+    if perm: return perm
+    fields = []
+    params = []
+    for k in ("title", "assignee", "status", "deadline"):
+        if k in task:
+            fields.append(f"{k}=?")
+            params.append(task[k])
+    if not fields:
+        return {"code": "4000", "message": "没有要更新的字段"}
+    params.append(task_id)
+    conn = get_connection()
+    conn.execute(f"UPDATE rectification_tasks SET {','.join(fields)} WHERE task_id=?", params)
+    conn.commit()
+    conn.close()
+    return {"code": "0000", "message": "工单更新成功"}
+
+
 @router.put("/tasks/{task_id}/status")
 async def update_task_status(task_id: str, status: str):
+    perm = _require_role("enterprise_admin", "area_supervisor", "store_manager")
+    if perm: return perm
     conn = get_connection()
     conn.execute("UPDATE rectification_tasks SET status=? WHERE task_id=?", (status, task_id))
     conn.commit()
@@ -303,48 +526,133 @@ async def update_task_status(task_id: str, status: str):
     return {"code": "0000", "message": f"工单状态已更新为 {status}"}
 
 
-# ==================== 统计数据 API（Dashboard）====================
+@router.delete("/tasks/{task_id}")
+async def delete_task(task_id: str):
+    perm = _require_role("enterprise_admin", "area_supervisor", "store_manager")
+    if perm: return perm
+    conn = get_connection()
+    conn.execute("UPDATE rectification_tasks SET is_deleted=1 WHERE task_id=?", (task_id,))
+    conn.commit()
+    conn.close()
+    return {"code": "0000", "message": "工单已删除"}
+
+
+# ==================== 消息 API ====================
+
+@router.get("/messages")
+async def list_messages():
+    if not _current_user:
+        return _permission_denied("请先登录")
+    conn = get_connection()
+    uid = _current_user["user_id"]
+    rows = conn.execute(
+        """SELECT m.*, u.user_name as from_name
+           FROM messages m
+           LEFT JOIN users u ON m.from_user = u.user_id
+           WHERE m.to_user = ?
+           ORDER BY m.created_at DESC""",
+        (uid,)).fetchall()
+    unread = conn.execute("SELECT COUNT(*) FROM messages WHERE to_user=? AND is_read=0", (uid,)).fetchone()[0]
+    conn.close()
+    return {"code": "0000", "data": [_dict_from_row(r) for r in rows], "unread": unread}
+
+
+@router.get("/messages/unread")
+async def unread_count():
+    if not _current_user:
+        return {"code": "0000", "data": {"unread": 0}}
+    conn = get_connection()
+    unread = conn.execute("SELECT COUNT(*) FROM messages WHERE to_user=? AND is_read=0",
+                          (_current_user["user_id"],)).fetchone()[0]
+    conn.close()
+    return {"code": "0000", "data": {"unread": unread}}
+
+
+class MessageCreate(BaseModel):
+    to_user: str
+    content: str
+
+
+@router.post("/messages")
+async def send_message(msg: MessageCreate):
+    if not _current_user:
+        return _permission_denied("请先登录")
+    conn = get_connection()
+    conn.execute(
+        "INSERT INTO messages (from_user,to_user,content) VALUES (?,?,?)",
+        (_current_user["user_id"], msg.to_user, msg.content))
+    conn.commit()
+    conn.close()
+    return {"code": "0000", "message": "消息已发送"}
+
+
+@router.put("/messages/{msg_id}/read")
+async def mark_read(msg_id: int):
+    conn = get_connection()
+    conn.execute("UPDATE messages SET is_read=1 WHERE id=?", (msg_id,))
+    conn.commit()
+    conn.close()
+    return {"code": "0000", "message": "已读"}
+
+
+@router.get("/messages/users")
+async def message_users():
+    """获取可发消息的用户列表"""
+    if not _current_user:
+        return _permission_denied("请先登录")
+    conn = get_connection()
+    rows = conn.execute(
+        "SELECT user_id, user_name, role_type FROM users WHERE is_deleted=0 AND user_id != ? ORDER BY user_id",
+        (_current_user["user_id"],)).fetchall()
+    conn.close()
+    return {"code": "0000", "data": [_dict_from_row(r) for r in rows]}
+
+
+# ==================== 统计数据 API ====================
 
 @router.get("/stats")
 async def get_stats():
+    if not _current_user:
+        return _permission_denied("请先登录")
     conn = get_connection()
-    total_alerts = conn.execute("SELECT COUNT(*) FROM alerts WHERE is_deleted=0").fetchone()[0]
-    total_events = conn.execute("SELECT COUNT(*) FROM violation_events WHERE is_deleted=0").fetchone()[0]
-    pending_tasks = conn.execute("SELECT COUNT(*) FROM rectification_tasks WHERE status='pending' AND is_deleted=0").fetchone()[0]
-    critical_alerts = conn.execute("SELECT COUNT(*) FROM alerts WHERE level='critical' AND is_deleted=0").fetchone()[0]
-    
-    # 按门店统计告警数
-    store_stats = conn.execute("""
-        SELECT s.id, s.name, COUNT(a.id) as alert_count
+
+    store_clause, store_params = _store_filter_clause()
+    base_where = "v.is_deleted=0" + store_clause
+
+    total_violations = conn.execute(f"SELECT COUNT(*) FROM violations v WHERE {base_where}", store_params).fetchone()[0]
+    pending_tasks = conn.execute(f"""SELECT COUNT(*) FROM rectification_tasks t WHERE t.is_deleted=0 AND t.status='pending' {store_clause.replace('v.','t.')}""", store_params).fetchone()[0]
+    critical_violations = conn.execute(f"SELECT COUNT(*) FROM violations v WHERE {base_where} AND v.level='critical'", store_params).fetchone()[0]
+    pending_review = conn.execute(f"SELECT COUNT(*) FROM violations v WHERE {base_where} AND v.review_status='pending'", store_params).fetchone()[0]
+
+    store_stats = conn.execute(f"""
+        SELECT s.id, s.name, COUNT(v.id) as violation_count
         FROM stores s
-        LEFT JOIN alerts a ON s.id = a.store_id AND a.is_deleted=0
+        LEFT JOIN violations v ON s.id = v.store_id AND v.is_deleted=0
         WHERE s.is_deleted=0
-        GROUP BY s.id
-        ORDER BY alert_count DESC
+        GROUP BY s.id ORDER BY violation_count DESC
     """).fetchall()
 
-    # 按违规类型统计
-    type_stats = conn.execute("""
+    type_stats = conn.execute(f"""
         SELECT violation_type, COUNT(*) as count
-        FROM alerts WHERE is_deleted=0
+        FROM violations v WHERE {base_where}
         GROUP BY violation_type ORDER BY count DESC
-    """).fetchall()
+    """, store_params).fetchall()
 
     conn.close()
     return {
         "code": "0000",
         "data": {
-            "total_alerts": total_alerts,
-            "total_events": total_events,
+            "total_violations": total_violations,
             "pending_tasks": pending_tasks,
-            "critical_alerts": critical_alerts,
+            "critical_violations": critical_violations,
+            "pending_review": pending_review,
             "store_stats": [_dict_from_row(r) for r in store_stats],
             "type_stats": [_dict_from_row(r) for r in type_stats],
         }
     }
 
 
-# ==================== SQL 查询面板（数据库演示核心）====================
+# ==================== SQL 查询面板 ====================
 
 class SQLQuery(BaseModel):
     sql: str
@@ -353,12 +661,9 @@ class SQLQuery(BaseModel):
 
 @router.post("/sql")
 async def execute_sql(query: SQLQuery):
-    """执行 SQL 查询并返回结果（仅 SELECT，写操作拦截）"""
     sql = query.sql.strip().upper()
-    # 安全拦截：只允许 SELECT 查询
     if not sql.startswith("SELECT"):
         return {"code": "4000", "message": "仅允许 SELECT 查询", "data": None}
-
     try:
         conn = get_connection()
         cursor = conn.execute(query.sql, query.params or [])
@@ -366,94 +671,81 @@ async def execute_sql(query: SQLQuery):
         columns = [desc[0] for desc in cursor.description]
         data = [dict(zip(columns, row)) for row in rows]
         conn.close()
-        return {
-            "code": "0000",
-            "data": {
-                "columns": columns,
-                "rows": data,
-                "count": len(data)
-            }
-        }
+        return {"code": "0000", "data": {"columns": columns, "rows": data, "count": len(data)}}
     except Exception as e:
         return {"code": "5000", "message": f"SQL 执行错误: {str(e)}", "data": None}
 
 
-# ==================== 预设数据库演示 ====================
+# ==================== 预设 SQL ====================
 
 @router.get("/demo-sql/presets")
 async def get_presets():
-    """返回预设 SQL 演示列表"""
     return {"code": "0000", "data": [
         {
-            "id": "join_3tables",
-            "title": "3 表联合查询（JOIN）",
-            "desc": "联表查询告警 + 门店 + 摄像头，演示参照完整性",
-            "sql": """SELECT a.id AS 告警ID, a.message AS 告警消息,
-       s.name AS 门店名称, c.name AS 摄像头位置,
-       a.level AS 级别, a.confidence AS 置信度
-FROM alerts a
-LEFT JOIN stores s ON a.store_id = s.id
-LEFT JOIN cameras c ON a.camera_id = c.id
-WHERE a.is_deleted = 0
+            "id": "join_violation_store",
+            "title": "违规+门店联合查询（JOIN）",
+            "desc": "联表查询违规记录 + 门店，演示参照完整性",
+            "sql": """SELECT v.id AS 违规ID, v.message AS 违规详情,
+       s.name AS 门店名称, v.violation_type AS 违规类型,
+       v.level AS 等级, v.confidence AS 置信度,
+       v.review_status AS 审核状态, v.appeal_status AS 申诉状态
+FROM violations v
+LEFT JOIN stores s ON v.store_id = s.id
+WHERE v.is_deleted = 0
 LIMIT 10"""
         },
         {
             "id": "group_by_store",
             "title": "分组统计（GROUP BY）",
-            "desc": "按门店分组统计告警数量，演示聚合函数",
+            "desc": "按门店分组统计违规数量",
             "sql": """SELECT s.name AS 门店名称,
-       COUNT(a.id) AS 告警总数,
-       SUM(CASE WHEN a.level = 'critical' THEN 1 ELSE 0 END) AS 严重告警数,
-       ROUND(AVG(a.confidence), 2) AS 平均置信度
+       COUNT(v.id) AS 违规总数,
+       SUM(CASE WHEN v.level = 'critical' THEN 1 ELSE 0 END) AS 严重违规数,
+       ROUND(AVG(v.confidence), 2) AS 平均置信度
 FROM stores s
-LEFT JOIN alerts a ON s.id = a.store_id AND a.is_deleted = 0
+LEFT JOIN violations v ON s.id = v.store_id AND v.is_deleted = 0
 WHERE s.is_deleted = 0
-GROUP BY s.id
-ORDER BY 告警总数 DESC"""
+GROUP BY s.id ORDER BY 违规总数 DESC"""
         },
         {
             "id": "logical_delete",
             "title": "逻辑删除演示",
-            "desc": "展示逻辑删除前 vs 逻辑删除后的数据对比",
+            "desc": "逻辑删除前 vs 逻辑删除后",
             "sql": """SELECT '已逻辑删除' AS 状态, id, message, level
-FROM alerts WHERE is_deleted = 1
+FROM violations WHERE is_deleted = 1
 UNION ALL
 SELECT '未删除' AS 状态, id, message, level
-FROM alerts WHERE is_deleted = 0
+FROM violations WHERE is_deleted = 0
 LIMIT 10"""
         },
         {
             "id": "foreign_key_check",
             "title": "外键关联检查",
-            "desc": "检查告警表中 store_id 是否都能匹配门店表，演示参照完整性",
-            "sql": """SELECT a.id AS 告警ID,
-       a.store_id AS 告警门店ID,
-       CASE WHEN s.id IS NOT NULL THEN '✅ 有效' ELSE '❌ 无效' END AS 外键状态
-FROM alerts a
-LEFT JOIN stores s ON a.store_id = s.id
-WHERE a.is_deleted = 0
-LIMIT 10"""
+            "desc": "检查违规表 store_id 参照完整性",
+            "sql": """SELECT v.id AS 违规ID, v.store_id,
+       CASE WHEN s.id IS NOT NULL THEN '有效' ELSE '无效' END AS 外键状态
+FROM violations v LEFT JOIN stores s ON v.store_id = s.id
+WHERE v.is_deleted = 0 LIMIT 10"""
         },
         {
             "id": "pending_tasks_detail",
             "title": "待处理工单详情",
-            "desc": "查询所有待处理的整改工单及关联告警",
+            "desc": "待处理的整改工单及关联违规",
             "sql": """SELECT t.task_id AS 工单ID, t.title AS 工单标题,
        s.name AS 门店, t.assignee AS 负责人,
-       a.message AS 关联告警, t.deadline AS 截止日期
+       v.message AS 关联违规, t.deadline AS 截止日期
 FROM rectification_tasks t
 LEFT JOIN stores s ON t.store_id = s.id
-LEFT JOIN alerts a ON t.alert_id = a.id
+LEFT JOIN violations v ON t.violation_id = v.id
 WHERE t.status = 'pending' AND t.is_deleted = 0"""
         }
     ]}
 
 
-# ==================== E-R 图说明 API ====================
+# ==================== E-R 图 ====================
 
 @router.get("/er-info")
 async def get_er_info():
-    """返回数据库表结构说明，用于前端 E-R 图展示"""
     return {
         "code": "0000",
         "data": {
@@ -465,26 +757,11 @@ async def get_er_info():
                     "relations": []
                 },
                 {
-                    "name": "cameras",
-                    "comment": "摄像头表",
-                    "columns": ["id(PK)", "name", "store_id(FK→stores)", "location"],
+                    "name": "violations",
+                    "comment": "违规记录表（整合告警+违规事件）",
+                    "columns": ["id(PK)", "store_id(FK→stores)", "message", "violation_type", "level", "confidence",
+                                "review_status", "appeal_status", "rectification_status", "timestamp"],
                     "relations": [{"type": "N:1", "target": "stores", "via": "store_id"}]
-                },
-                {
-                    "name": "alerts",
-                    "comment": "告警记录表（核心）",
-                    "columns": ["id(PK)", "camera_id(FK→cameras)", "store_id(FK→stores)", "message", "violation_type", "level", "confidence", "rectification_status"],
-                    "relations": [
-                        {"type": "N:1", "target": "cameras", "via": "camera_id"},
-                        {"type": "N:1", "target": "stores", "via": "store_id"},
-                        {"type": "1:1", "target": "violation_events", "via": "alert_id"}
-                    ]
-                },
-                {
-                    "name": "violation_events",
-                    "comment": "违规事件表（VLM 校验后产出）",
-                    "columns": ["event_id(PK)", "alert_id(FK→alerts)", "is_violation_confirmed", "severity_level", "verification_method"],
-                    "relations": [{"type": "1:1", "target": "alerts", "via": "alert_id"}]
                 },
                 {
                     "name": "users",
@@ -495,8 +772,21 @@ async def get_er_info():
                 {
                     "name": "rectification_tasks",
                     "comment": "整改工单表",
-                    "columns": ["task_id(PK)", "alert_id", "store_id(FK→stores)", "title", "status", "assignee", "deadline"],
-                    "relations": [{"type": "N:1", "target": "stores", "via": "store_id"}]
+                    "columns": ["task_id(PK)", "violation_id(FK→violations)", "store_id(FK→stores)",
+                                "title", "status", "assignee", "created_by", "deadline"],
+                    "relations": [
+                        {"type": "N:1", "target": "violations", "via": "violation_id"},
+                        {"type": "N:1", "target": "stores", "via": "store_id"}
+                    ]
+                },
+                {
+                    "name": "messages",
+                    "comment": "消息表",
+                    "columns": ["id(PK)", "from_user(FK→users)", "to_user(FK→users)", "content", "is_read", "created_at"],
+                    "relations": [
+                        {"type": "N:1", "target": "users", "via": "from_user"},
+                        {"type": "N:1", "target": "users", "via": "to_user"}
+                    ]
                 }
             ]
         }
