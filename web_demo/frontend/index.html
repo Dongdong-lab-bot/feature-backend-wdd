@@ -202,6 +202,16 @@ tr:hover { background: #f8faff; }
       <div class="page" id="page-sql" style="display:none">
         <div class="page-header"><h1><i class="fas fa-terminal"></i> SQL 查询面板</h1></div>
         <div class="card"><div class="card-header"><i class="fas fa-lightbulb"></i> 预设演示</div><div class="card-body"><div class="toolbar" id="preset-buttons"></div></div></div>
+        <div class="card"><div class="card-header"><i class="fas fa-cog"></i> LLM 大模型设置</div>
+          <div class="card-body">
+            <div style="display:flex;gap:12px;flex-wrap:wrap">
+              <input id="llm-key" type="password" placeholder="API Key（如 sk-xxx）" style="flex:1;min-width:150px;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px">
+              <input id="llm-url" placeholder="Base URL" value="https://api.openai.com/v1" style="flex:1;min-width:200px;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px">
+              <input id="llm-model" placeholder="Model" value="gpt-3.5-turbo" style="width:150px;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px">
+              <button class="btn btn-success" onclick="saveLLMConfig()"><i class="fas fa-save"></i> 保存</button>
+            </div>
+            <div id="llm-status" style="margin-top:8px;font-size:12px;color:#666"></div>
+          </div></div>
         <div class="card"><div class="card-header"><i class="fas fa-robot"></i> AI 自然语言查询 (NL→SQL)</div>
           <div class="card-body">
             <div style="display:flex;gap:12px"><input id="nl-input" placeholder="输入自然语言问题，如：查出所有严重违规记录" style="flex:1;padding:10px 14px;border:1px solid #ddd;border-radius:8px;font-size:14px" onkeydown="if(event.key==='Enter')runNLSQL()"><button class="btn btn-primary" onclick="runNLSQL()"><i class="fas fa-magic"></i> AI 查询</button></div>
@@ -628,6 +638,13 @@ async function runNLSQL(){
     html+='</tbody></table>';
     document.getElementById('sql-result').innerHTML=count===0?'<div class="empty-state"><p>无结果</p></div>':html;
   } catch(e){ disp.textContent='网络错误'; document.getElementById('sql-result').innerHTML=`<div class="empty-state"><p>${e.message}</p></div>`; }
+}
+async function saveLLMConfig(){
+  const data={ api_key:document.getElementById('llm-key').value, base_url:document.getElementById('llm-url').value, model_name:document.getElementById('llm-model').value };
+  if(!data.api_key){ showToast('请输入 API Key','error');return; }
+  await fetch(`${BASE}/llm-config`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(data)});
+  document.getElementById('llm-status').textContent='✅ LLM 配置已保存 ('+data.model_name+')';
+  showToast('LLM 配置已保存');
 }
 function clearSQL(){ document.getElementById('sql-editor').value=''; document.getElementById('sql-result').innerHTML='<div class="empty-state"><p>输入 SQL 并执行</p></div>'; }
 

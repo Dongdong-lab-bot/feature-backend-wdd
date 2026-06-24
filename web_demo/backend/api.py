@@ -68,6 +68,13 @@ _LOGIN_USERS = {
 # 当前登录用户（简化为全局，Demo 用）
 _current_user: Optional[dict] = None
 
+# LLM 配置（用户通过界面设置）
+_llm_config: dict = {
+    "api_key": "",
+    "base_url": "https://api.openai.com/v1",
+    "model_name": "gpt-3.5-turbo",
+}
+
 
 def _permission_denied(msg: str = "权限不足"):
     return JSONResponse({"code": "4003", "message": msg, "data": None}, status_code=403)
@@ -731,7 +738,23 @@ class NLQuery(BaseModel):
 async def nl_to_sql(query: NLQuery):
     """自然语言转 SQL 查询（接入 AI Text-to-SQL 管道）"""
     try:
-        from src.agents.data_agent.sql_generator import generate_sql_with_retry, build_alert_table_schema
+        # 检查是否配置了 API Key
+        if not _llm_config.get("api_key"):
+            return {"code": "4000", "message": "请先在下方设置 LLM API Key", "data": None}
+
+        # 动态设置 LLM 配置到环境变量
+        import os
+        os.environ["LLM_API_KEY"] = _llm_config["api_key"]
+        os.environ["LLM_BASE_URL"] = _llm_config["base_url"]
+        os.environ["LLM_MODEL_NAME"] = _llm_config["model_name"]
+
+        # 重新加载配置（覆盖默认值）
+        from src.core.config import llm_settings
+        llm_settings.llm_api_key = _llm_config["api_key"]
+        llm_settings.llm_base_url = _llm_config["base_url"]
+        llm_settings.llm_model_name = _llm_config["model_name"]
+
+        from src.agents.data_agent.sql_generator import generate_sql_with_retry
         from src.core.llm_client import AsyncLLMClient
 
         # 构建当前数据库 schema 描述
@@ -798,6 +821,27 @@ async def nl_to_sql(query: NLQuery):
     except Exception as e:
         return {"code": "5000", "message": f"AI 生成 SQL 失败: {str(e)}", "data": None}
 
+
+# ==================== LLM 配置 API ====================
+
+class LLMConfig(BaseModel):
+    api_key: str
+    base_url: str = "https://api.openai.com/v1"
+    model_name: str = "gpt-3.5-turbo"
+
+@router.post("/llm-config")
+async def save_llm_config(config: LLMConfig):
+    """保存用户输入的 LLM 配置"""
+    global _llm_config
+    _llm_config = {"api_key": config.api_key, "base_url": config.base_url, "model_name": config.model_name}
+    return {"code": "0000", "message": "LLM 配置已保存"}
+
+@router.get("/llm-config")
+async def get_llm_config():
+    """获取当前 LLM 配置（隐藏 API Key）"""
+    cfg = dict(_llm_config)
+    cfg["api_key"] = (cfg["api_key"][:8] + "****" + cfg["api_key"][-4:]) if len(cfg["api_key"]) > 12 else ("****" if cfg["api_key"] else "")
+    return {"code": "0000", "data": cfg}
 
 # ==================== 预设 SQL ====================
 
